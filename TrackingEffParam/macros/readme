@@ -1,0 +1,35 @@
+README
+======
+
+All the root files mentioned below are checked in. 
+You need the HiForest environment to run the macros.
+Check if the description below if a macro is to be complied or not.
+
+
+Prepare3DHistos.C:
+------------------
+Prepares and saves the 'light' (eta,pt,phi) +D histograms from the HiForest.
+Output is TrkCorr_3DHistos_pThat80_Inclusive.root. You need to compile 
+the macro.
+
+
+ComputeAcceptanceWeight.C:
+--------------------------
+Computes the acceptance weights and saves them in a root file called 
+AcceptanceWeights.root. NO need to compile the macro.
+
+
+ComputeCentralityWeight.C:
+--------------------------
+Computes the centrality weights. Very messy...
+You need to compile it; also plots the fits, etc. Output file is 
+CentralityWeights.root. Compile the macro.
+
+
+CheckClosure_MyCorrections.C:
+-----------------------------
+Check closure against the HiForest using my corrections. Various 
+distributions are plotted. Check the messy code, the names of the 
+histograms speak for themselves. You need to compile the macro.
+
+
