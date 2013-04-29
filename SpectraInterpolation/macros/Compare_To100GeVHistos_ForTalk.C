@@ -1,0 +1,402 @@
+void Compare_To100GeVHistos_ForTalk() {
+
+  SetStyle();
+  gStyle->SetOptFile(0);
+  gStyle->SetOptStat(0);
+  gStyle->SetOptFit(0);
+
+  TFile * f_PowerLawInLinLin = new TFile("output_interpolation_KK_LogFitForC6_TryExtrapolationInXT_Exp0_PowerLawLinLinFit.root");
+
+  TFile * f_xTGunther = new TFile("output_interpolation_KK_LogFitForC6_TryExtrapolationInXT.root");
+  TFile * f_xTGunther_Exp0 = new TFile("output_interpolation_KK_LogFitForC6_TryExtrapolationInXT_Exp0.root");
+
+  TFile * f_xT = new TFile("output_xtscaling_KK.root");
+  TFile * f_dirInt_equalWeights = new TFile("output_interpolation_KK_LogFitForC6.root");
+  TFile * f_dirInt_equalWeights_RelativePlacement = new TFile("output_interpolation_KK_LogFitForC6_RelativePlacement.root");
+  TFile * f_dirInt_equalWeights_ResFit = new TFile("FitTest_StartingFrom_plot_all_KK_LogFitForC6.root");
+  TFile * f_dirInt_errorWeights = new TFile("output_interpolation_KK_LogFitForC6_CovErrorsForFit2.root");
+
+  //Ed^3/dp^3
+  TH1D* h_RelativePlacement = (TH1D*)f_dirInt_equalWeights_RelativePlacement->Get("h5020_To100GeV_RelativePlacement_BasedOn7TeV");
+
+  TH1D* h_dirInt_LogFit_all = (TH1D*)f_dirInt_equalWeights->Get("h5020_To100GeV_FromLogFit");
+  TH1D* h_dirInt_all = (TH1D*)f_dirInt_equalWeights->Get("h5020_To100GeV");
+  TH1D* h_dirInt_LogFit_2760_7000 = (TH1D*)f_dirInt_equalWeights->Get("h5020_To100GeV_09_7_FromLogFit");
+  TH1D* h_dirInt_2760_7000 = (TH1D*)f_dirInt_equalWeights->Get("h5020_To100GeV_09_7");
+
+  TH1D* h_dirInt_LogFit_all_ResFit = (TH1D*)f_dirInt_equalWeights_ResFit->Get("h5020_To100GeV_FromLogFit");
+  TH1D* h_dirInt_all_ResFit = (TH1D*)f_dirInt_equalWeights_ResFit->Get("h5020_To100GeV");
+  TH1D* h_dirInt_LogFit_ResFit_2760_7000 = (TH1D*)f_dirInt_equalWeights_ResFit->Get("h5020_To100GeV_09_7_FromLogFit");
+  TH1D* h_dirInt_ResFit_2760_7000 = (TH1D*)f_dirInt_equalWeights_ResFit->Get("h5020_To100GeV_09_7");
+
+  TH1D* h_dirInt_LogFit_all_errorWeights = (TH1D*)f_dirInt_errorWeights->Get("h5020_To100GeV_FromLogFit");
+  TH1D* h_dirInt_all_errorWeights = (TH1D*)f_dirInt_errorWeights->Get("h5020_To100GeV");
+  TH1D* h_dirInt_LogFit_errorWeights_2760_7000 = (TH1D*)f_dirInt_errorWeights->Get("h5020_To100GeV_09_7_FromLogFit");
+  TH1D* h_dirInt_errorWeights_2760_7000 = (TH1D*)f_dirInt_errorWeights->Get("h5020_To100GeV_09_7");
+
+  //sqrt(s)^4.9 Ed^3/dp^3   - global xt scaling -
+  TF1* f_xTScaled_vs_xT = (TF1*)f_xT->Get("merge_fit");
+  TH1D* h_xTScaled_vs_pT = From_xT_to_pT(f_xTScaled_vs_xT,h_dirInt_LogFit_all,5020.,4.9);
+
+  //sqrt{s}^4.9 Ed^3/dp^3 is a function of xT
+  TH1D *h_dirInt_xtGunther_LogFit = (TH1D*)f_xTGunther->Get("h5020_FromLogFit");
+  TH1D *h_dirInt_xtGunther_LogFit_pT = From_xT_to_pT_histo(h_dirInt_xtGunther_LogFit,h_dirInt_LogFit_all,5020.,4.9);
+
+  //Ed^3/dp^3 is a function of xT
+  TH1D *h_dirInt_xtGunther_LogFit_Exp0 = (TH1D*)f_xTGunther_Exp0->Get("h5020_FromLogFit");
+  TH1D *h_dirInt_xtGunther_LogFit_Exp0_pT = From_xT_to_pT_histo(h_dirInt_xtGunther_LogFit_Exp0,h_dirInt_LogFit_all,5020.,0.);
+
+  TH1D *h_dirInt_xtGunther_PowerLawLinLinFit_Exp0 = (TH1D*)f_PowerLawInLinLin->Get("h5020");
+  TH1D *h_dirInt_xtGunther_PowerLawLinLinFit_Exp0_pT = From_xT_to_pT_histo(h_dirInt_xtGunther_PowerLawLinLinFit_Exp0,h_dirInt_all,5020.,0.);
+
+  TCanvas *c1 = new TCanvas("c1","c1",500,500);
+  c1->SetLogy();
+  h_dirInt_LogFit_all->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  h_dirInt_LogFit_all->GetYaxis()->SetTitle("Ed^{3}#sigma/dp^{3}");
+  h_dirInt_LogFit_all->GetXaxis()->CenterTitle();
+  h_dirInt_LogFit_all->GetYaxis()->CenterTitle();
+  h_dirInt_LogFit_all->Draw();  
+
+  //xtGunther
+  h_dirInt_xtGunther_LogFit_pT->SetLineColor(3);
+  h_dirInt_xtGunther_LogFit_pT->SetLineStyle(3);
+  h_dirInt_xtGunther_LogFit_pT->SetLineWidth(3);
+  h_dirInt_xtGunther_LogFit_pT->Draw("same");
+
+  h_dirInt_xtGunther_LogFit_Exp0_pT->SetLineColor(3);
+  h_dirInt_xtGunther_LogFit_Exp0_pT->SetLineStyle(6);
+  h_dirInt_xtGunther_LogFit_Exp0_pT->SetLineWidth(3);
+  h_dirInt_xtGunther_LogFit_Exp0_pT->Draw("same");
+/*
+  h_dirInt_xtGunther_PowerLawLinLinFit_Exp0_pT->SetLineColor(3);
+  h_dirInt_xtGunther_PowerLawLinLinFit_Exp0_pT->SetLineStyle(4);
+  h_dirInt_xtGunther_PowerLawLinLinFit_Exp0_pT->SetLineWidth(3);
+  h_dirInt_xtGunther_PowerLawLinLinFit_Exp0_pT->Draw("same");
+*/
+  //rest
+  h_RelativePlacement->SetLineStyle(9);
+  h_RelativePlacement->SetLineWidth(2);
+  h_RelativePlacement->SetLineColor(38);
+  h_RelativePlacement->Draw("same");
+/*
+  h_dirInt_all->SetLineStyle(2);  
+  h_dirInt_all->Draw("same");  
+
+  h_dirInt_LogFit_2760_7000->SetLineColor(2);  
+  h_dirInt_LogFit_2760_7000->Draw("same");  
+
+  h_dirInt_2760_7000->SetLineStyle(2);  
+  h_dirInt_2760_7000->SetLineColor(2);  
+  h_dirInt_2760_7000->Draw("same");  
+
+  h_dirInt_LogFit_all_errorWeights->SetLineColor(4);
+  h_dirInt_LogFit_all_errorWeights->Draw("same");
+
+  h_dirInt_all_errorWeights->SetLineColor(4);
+  h_dirInt_all_errorWeights->SetLineStyle(2);
+  h_dirInt_all_errorWeights->Draw("same");
+
+  h_dirInt_LogFit_errorWeights_2760_7000->SetLineColor(41);
+  h_dirInt_LogFit_errorWeights_2760_7000->Draw("same");
+
+  h_dirInt_errorWeights_2760_7000->SetLineColor(41);
+  h_dirInt_errorWeights_2760_7000->SetLineStyle(2);
+  h_dirInt_errorWeights_2760_7000->Draw("same");
+
+  h_dirInt_LogFit_all_ResFit->SetLineColor(6);
+  h_dirInt_LogFit_all_ResFit->Draw("same");
+
+  h_dirInt_all_ResFit->SetLineColor(6);
+  h_dirInt_all_ResFit->SetLineStyle(2);
+  h_dirInt_all_ResFit->Draw("same");
+
+  h_dirInt_LogFit_ResFit_2760_7000->SetLineColor(8);
+  h_dirInt_LogFit_ResFit_2760_7000->Draw("same");
+
+  h_dirInt_ResFit_2760_7000->SetLineColor(8);
+  h_dirInt_ResFit_2760_7000->SetLineStyle(2);
+  h_dirInt_ResFit_2760_7000->Draw("same");
+
+  h_xTScaled_vs_pT->SetLineColor(33);
+  h_xTScaled_vs_pT->Draw("same");
+*/
+  TLegend *leg1 = new TLegend(0.19,0.61,0.96,0.91);
+  leg1->SetBorderSize(0);
+  leg1->SetFillStyle(0);
+  leg1->SetFillColor(0);
+  leg1->AddEntry(h_dirInt_LogFit_all,"log-log interp., all data, equal weights","l");
+  leg1->AddEntry(h_RelativePlacement,"Relative placement","l");
+//  leg1->AddEntry(h_dirInt_all,"lin-lin interp., all data, equal weights","l");
+//  leg1->AddEntry(h_dirInt_LogFit_2760_7000,"log-log interp., 2.76 & 7 TeV, equal weights","l");
+//  leg1->AddEntry(h_dirInt_2760_7000,"lin-lin interp., 2.76 & 7 TeV, equal weights","l");
+//  leg1->AddEntry(h_dirInt_LogFit_all_errorWeights,"log-log interpolation, all, diff. weights","l");
+//  leg1->AddEntry(h_dirInt_all_errorWeights,"lin-lin interpolation, all, diff. weights","l");
+//  leg1->AddEntry(h_dirInt_LogFit_errorWeights_2760_7000,"log-log interpolation, 2.76 & 7 TeV, diff. weights","l");
+//  leg1->AddEntry(h_dirInt_errorWeights_2760_7000,"lin-lin interpolation, 2.76 & 7 TeV, diff. weights","l");
+//  leg1->AddEntry(h_dirInt_LogFit_all_ResFit,"log-log interpolation, all, equal weights, res. fit","l");
+//  leg1->AddEntry(h_dirInt_all_ResFit,"lin-lin interpolation, all, equal weights, res. fit","l");
+//  leg1->AddEntry(h_dirInt_LogFit_ResFit_2760_7000,"log-log interpolation, 2.76 & 7 TeV, equal weights, res. fit","l");
+//  leg1->AddEntry(h_dirInt_ResFit_2760_7000,"lin-lin interpolation, 2.76 & 7 TeV, equal weights, res. fit","l");
+  leg1->AddEntry(h_dirInt_xtGunther_LogFit_pT,"log-log interpolation, based on #sqrt{s}^{4.9} Ed#sigma^{3}/dp^{3} vs x_{T}","l");
+  leg1->AddEntry(h_dirInt_xtGunther_LogFit_Exp0_pT,"log-log interpolation, based on Ed#sigma^{3}/dp^{3} vs x_{T}","l");
+//  leg1->AddEntry(h_dirInt_xtGunther_PowerLawLinLinFit_Exp0_pT,"lin-lin power law, based on Ed#sigma^{3}/dp^{3} vs x_{T}","l");
+//  leg1->AddEntry(h_xTScaled_vs_pT,"(Non-NLO-corrected) global xT scaling","l");
+  leg1->Draw();
+
+
+  TCanvas *c2 = new TCanvas("c2","c2",500,500);
+  TH1F * h_dirInt_LogFit_all_copy1 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy1");
+  TH1F * h_dirInt_LogFit_all_copy2 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy2");
+  TH1F * h_dirInt_LogFit_all_copy3 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy3");
+  TH1F * h_dirInt_LogFit_all_copy4 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy4");
+  TH1F * h_dirInt_LogFit_all_copy5 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy5");
+  TH1F * h_dirInt_LogFit_all_copy6 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy6");
+  TH1F * h_dirInt_LogFit_all_copy7 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy7");
+  TH1F * h_dirInt_LogFit_all_copy8 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy8");
+  TH1F * h_dirInt_LogFit_all_copy9 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy9");
+  TH1F * h_dirInt_LogFit_all_copy10 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy10");
+  TH1F * h_dirInt_LogFit_all_copy11 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy11");
+  TH1F * h_dirInt_LogFit_all_copy12 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy12");
+  TH1F * h_dirInt_LogFit_all_copy13 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy13");
+  TH1F * h_dirInt_LogFit_all_copy14 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy14");
+  TH1F * h_dirInt_LogFit_all_copy15 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy15");
+  TH1F * h_dirInt_LogFit_all_copy16 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy16");
+  TH1F * h_dirInt_LogFit_all_copy17 = (TH1F*)h_dirInt_LogFit_all->Clone("h_dirInt_LogFit_all_copy17");
+
+  h_dirInt_LogFit_all_copy1->Divide(h_dirInt_all);
+  h_dirInt_LogFit_all_copy1->SetLineStyle(2);
+  h_dirInt_LogFit_all_copy1->SetMinimum(0.5);
+  h_dirInt_LogFit_all_copy1->SetMaximum(1.5);
+//  h_dirInt_LogFit_all_copy1->GetYaxis()->SetTitle("Ratios");
+  h_dirInt_LogFit_all_copy1->GetYaxis()->SetTitle("log-log interp., all data, equal weights/Other refs");
+/*
+  h_dirInt_LogFit_all_copy1->Draw();
+
+  h_dirInt_LogFit_all_copy2->Divide(h_dirInt_LogFit_2760_7000);
+  h_dirInt_LogFit_all_copy2->SetLineStyle(2);
+  h_dirInt_LogFit_all_copy2->SetLineColor(2);
+  h_dirInt_LogFit_all_copy2->SetMinimum(0.5);
+  h_dirInt_LogFit_all_copy2->SetMaximum(1.5);
+  h_dirInt_LogFit_all_copy2->GetYaxis()->SetTitle("log-log interp., all data, equal weights/Other refs");
+  h_dirInt_LogFit_all_copy2->Draw("same");
+
+  h_dirInt_LogFit_all_copy3->Divide(h_dirInt_2760_7000);
+  h_dirInt_LogFit_all_copy3->SetLineStyle(2);
+  h_dirInt_LogFit_all_copy3->SetLineColor(2);
+  h_dirInt_LogFit_all_copy3->Draw("same");
+
+  h_dirInt_LogFit_all_copy4->Divide(h_dirInt_LogFit_all_errorWeights);
+  h_dirInt_LogFit_all_copy4->SetLineColor(4);
+  h_dirInt_LogFit_all_copy4->SetMinimum(0.5);
+  h_dirInt_LogFit_all_copy4->SetMaximum(1.5);
+  h_dirInt_LogFit_all_copy4->GetYaxis()->SetTitle("log-log interp., all data, equal weights/Other refs");
+  h_dirInt_LogFit_all_copy4->Draw("same");
+
+  h_dirInt_LogFit_all_copy5->Divide(h_dirInt_all_errorWeights);
+  h_dirInt_LogFit_all_copy5->SetLineColor(4);
+  h_dirInt_LogFit_all_copy5->SetLineStyle(2);
+  h_dirInt_LogFit_all_copy5->Draw("same");
+
+  h_dirInt_LogFit_all_copy6->Divide(h_dirInt_LogFit_errorWeights_2760_7000);
+  h_dirInt_LogFit_all_copy6->SetLineColor(41);
+  h_dirInt_LogFit_all_copy6->Draw("same");
+
+  h_dirInt_LogFit_all_copy7->Divide(h_dirInt_errorWeights_2760_7000);
+  h_dirInt_LogFit_all_copy7->SetLineStyle(2);
+  h_dirInt_LogFit_all_copy7->SetLineColor(41);
+  h_dirInt_LogFit_all_copy7->Draw("same");
+
+  h_dirInt_LogFit_all_copy8->Divide(h_dirInt_LogFit_all_ResFit);
+  h_dirInt_LogFit_all_copy8->SetLineColor(6);
+  h_dirInt_LogFit_all_copy8->Draw("same");
+
+  h_dirInt_LogFit_all_copy9->Divide(h_dirInt_all_ResFit);
+  h_dirInt_LogFit_all_copy9->SetLineColor(6);
+  h_dirInt_LogFit_all_copy9->SetLineStyle(2);
+  h_dirInt_LogFit_all_copy9->Draw("same");
+
+  h_dirInt_LogFit_all_copy10->Divide(h_dirInt_LogFit_ResFit_2760_7000);
+  h_dirInt_LogFit_all_copy10->SetLineColor(8);
+  h_dirInt_LogFit_all_copy10->Draw("same");
+
+  h_dirInt_LogFit_all_copy11->Divide(h_dirInt_ResFit_2760_7000);
+  h_dirInt_LogFit_all_copy11->SetLineColor(8);
+  h_dirInt_LogFit_all_copy11->SetLineStyle(2);
+  h_dirInt_LogFit_all_copy11->Draw("same");
+
+  h_dirInt_LogFit_all_copy12->Divide(h_xTScaled_vs_pT);
+  h_dirInt_LogFit_all_copy12->SetLineColor(33);
+  h_dirInt_LogFit_all_copy12->Draw("same");
+*/
+  h_dirInt_LogFit_all_copy13->Divide(h_RelativePlacement);
+  h_dirInt_LogFit_all_copy13->SetLineStyle(9);
+  h_dirInt_LogFit_all_copy13->SetLineWidth(2);
+  h_dirInt_LogFit_all_copy13->SetLineColor(38);
+  h_dirInt_LogFit_all_copy13->SetMinimum(0.5);
+  h_dirInt_LogFit_all_copy13->SetMaximum(1.5);
+  h_dirInt_LogFit_all_copy13->GetYaxis()->SetTitle("log-log interp., all data, equal weights/Other refs");
+  h_dirInt_LogFit_all_copy13->Draw("same");
+
+  h_dirInt_LogFit_all_copy14->Divide(h_dirInt_xtGunther_LogFit_pT);
+  h_dirInt_LogFit_all_copy14->SetLineColor(3);
+  h_dirInt_LogFit_all_copy14->SetLineStyle(3);
+  h_dirInt_LogFit_all_copy14->SetLineWidth(3);
+  h_dirInt_LogFit_all_copy14->SetMinimum(0.5);
+  h_dirInt_LogFit_all_copy14->SetMaximum(1.5);
+  h_dirInt_LogFit_all_copy14->GetYaxis()->SetTitle("log-log interp., all data, equal weights/Other refs");
+  h_dirInt_LogFit_all_copy14->Draw("same");
+
+  h_dirInt_LogFit_all_copy16->Divide(h_dirInt_xtGunther_LogFit_Exp0_pT);
+  h_dirInt_LogFit_all_copy16->SetLineColor(3);
+  h_dirInt_LogFit_all_copy16->SetLineStyle(6);
+  h_dirInt_LogFit_all_copy16->SetLineWidth(3);
+  h_dirInt_LogFit_all_copy16->Draw("same");
+
+  h_dirInt_LogFit_all_copy17->Divide(h_dirInt_xtGunther_PowerLawLinLinFit_Exp0_pT);
+  h_dirInt_LogFit_all_copy17->SetLineColor(3);
+  h_dirInt_LogFit_all_copy17->SetLineStyle(4);
+  h_dirInt_LogFit_all_copy17->SetLineWidth(3);
+//  h_dirInt_LogFit_all_copy17->Draw("same");
+
+  TLegend *leg2 = new TLegend(0.19,0.61,0.99,0.91);
+  leg2->SetBorderSize(0);
+  leg2->SetFillStyle(0);
+  leg2->SetFillColor(0);
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy1,"lin-lin interp., all data, equal weights","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy2,"log-log interp., 2.76 & 7 TeV, equal weights","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy3,"lin-lin interp., 2.76 & 7 TeV, equal weights","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy4,"log-log fit, all data, diff. weights","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy5,"lin-lin, all, diff. weights","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy6,"log-log fit, 2.76 & 7 TeV data, diff. weights","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy7,"lin-lin, 2.76 & 7 TeV, diff. weights","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy8,"Log-Log fit, all points, eq. weights, res. fit","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy9,"Lin-Lin fit, all, eq. weights, res. fit","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy10,"log-log, 2.76 & 7 TeV, eq. w., res. fit","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy11,"lin-lin, 2.76 & 7 TeV, eq. w., res. fit","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy12,"(Non-NLO-corrected) global xT scaling","l");
+  leg2->AddEntry(h_dirInt_LogFit_all_copy13,"Relative placement","l");
+  leg2->AddEntry(h_dirInt_LogFit_all_copy14,"log-log interpolation, based on #sqrt{s}^{4.9} Ed#sigma^{3}/dp^{3} vs x_{T}","l");
+  leg2->AddEntry(h_dirInt_LogFit_all_copy16,"log-log interpolation, based on Ed#sigma^{3}/dp^{3} vs x_{T}","l");
+//  leg2->AddEntry(h_dirInt_LogFit_all_copy17,"lin-lin power law, based on Ed#sigma^{3}/dp^{3} vs x_{T}","l");
+  leg2->Draw();
+}
+
+void SetStyle() {
+
+   gStyle->SetErrorX(0);
+   gStyle->SetPalette(1,0);
+   gStyle->SetPadColor(0);
+   gStyle->SetPadBorderSize(0);
+   gStyle->SetPadBorderMode(0);
+   gStyle->SetCanvasColor(0);
+   gStyle->SetCanvasBorderMode(0);
+   gStyle->SetCanvasBorderSize(0);
+   gStyle->SetFrameBorderMode(0);
+   gStyle->SetFrameLineColor(0);
+   gStyle->SetTitleColor(0);
+   gStyle->SetTitleBorderSize(0);
+
+   gStyle->SetPalette(1,0);
+
+   gStyle->SetPadTickX(1);
+   gStyle->SetPadTickY(1);
+   gStyle->SetPadColor(0);
+   gStyle->SetPadBorderSize(0);
+   gStyle->SetPadBorderMode(0);
+   gStyle->SetCanvasColor(0);
+   gStyle->SetCanvasBorderMode(0);
+   gStyle->SetCanvasBorderSize(0);
+   gStyle->SetFrameBorderMode(0);
+   gStyle->SetFrameLineColor(0);
+   gStyle->SetTextFont(62);
+   gStyle->SetLabelFont(42,"XYZ");
+   gStyle->SetTitleFont(42,"XYZ");
+   gStyle->SetTitleColor(0);
+   gStyle->SetTitleBorderSize(0);
+   gStyle->SetTitleXSize(.045);
+   gStyle->SetTitleYSize(.045);
+   //gStyle->SetTitleXOffset(1.0);
+   //gStyle->SetTitleYOffset(1.6);
+   gStyle->SetTitleXOffset(1.2);
+   //gStyle->SetTitleYOffset(2.2);
+   gStyle->SetTitleYOffset(1.8);
+   gStyle->SetLabelSize(0.040,"XYZ");
+   gStyle->SetLabelOffset(0.01,"X");
+   gStyle->SetLabelOffset(0.01,"Y");
+   gStyle->SetTitleColor(1,"XYZ");
+   gStyle->SetHistFillColor(1);
+   gStyle->SetHistFillStyle(0);
+   gStyle->SetHistLineColor(1);
+   gStyle->SetHistLineStyle(0);
+   gStyle->SetHistLineWidth(3);
+   gStyle->SetHistLineWidth(1);
+   gStyle->SetEndErrorSize(0);
+   gStyle->SetErrorX(0);
+   gStyle->SetMarkerStyle(20);
+   //gStyle->SetMarkerSize(1.25);
+   gStyle->SetMarkerSize(1.5);
+
+   gStyle->SetOptFit(1111);
+   gStyle->SetStatColor(0);
+   gStyle->SetStatBorderSize(1);
+   gStyle->SetOptTitle(0);
+   //gStyle->SetOptStat(1111);
+   //gStyle->SetOptStat(0);
+
+
+   gStyle->SetPadLeftMargin(0.17);
+   //gStyle->SetPadLeftMargin(0.21);
+   gStyle->SetPadBottomMargin(0.14);
+   gStyle->SetPadTopMargin(0.05);
+   gStyle->SetPadRightMargin(0.04);
+
+
+   const Int_t NRGBs = 5;
+   //const Int_t NCont = 255;
+   const Int_t NCont = 200;
+
+   Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+   Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
+   Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
+   Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
+   TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+   //gStyle->CreateColorGradientTable(NRGBs, stops, red, green, blue, NCont);
+
+   gStyle->SetNumberContours(NCont);
+
+   gROOT->ForceStyle();
+}
+
+TH1D* From_xT_to_pT(TF1 *f_xt, TH1D *h_binning, double sqrts, double exp) {
+
+  TH1D* h_pt = h_binning->Clone("h_pt");
+  h_pt->Reset();
+
+  //xt distribution is a function. Use the pT binning of the pT distribution
+  for(int i=1; i<=h_pt->GetNbinsX(); i++) {
+
+     double pt = h_pt->GetBinCenter(i);
+     double content = h_pt->GetBinContent(i);
+     double xt = 2.*pt/sqrts;
+
+     h_pt->SetBinContent(i,f_xt->Eval(xt)/sqrts**exp);
+  }
+
+  return h_pt;
+}
+
+TH1D* From_xT_to_pT_histo(TH1D *h_input, TH1D *h_binning, double sqrts, double exp) {
+
+  TH1D *h_pt = (TH1D*)h_binning->Clone("h_pt");
+  h_pt->Reset();
+
+  for(int i=1; i<=h_input->GetNbinsX(); i++) {
+     double xT = h_input->GetBinCenter(i);
+     double content = h_input->GetBinContent(i)/TMath::Power(sqrts,exp);
+     double pT = 5020.*xT/2.;
+     if(pT>120) break;
+     h_pt->SetBinContent(h_pt->FindBin(pT),content);
+  }
+
+  return h_pt;
+}
