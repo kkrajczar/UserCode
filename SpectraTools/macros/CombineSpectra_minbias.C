@@ -12,7 +12,7 @@
 
 TH1D* divideHistosDiffBins(TH1D* h_Num, TH1D* h_Den);
 void normalizeByBinWidth(TH1D *histo);
-void fillHistograms(HiForest * c_minbias, JetData data, TH1D *hJetPt_minbias, TH1D *hJetPt_larger_minbias, TH1D *hJetPt_Jet40, TH1D *hJetPt_larger_Jet40, TH1D *hJetPt_Jet60, TH1D *hJetPt_Jet80, TH1D *hJetPt_Jet100, TH1D *hJetPt_Jet120, int & numev_minbias, float & numev_minbias_trigCorr, int & numev_0_60_minbias, float & numev_0_60_minbias_trigCorr, int & numev_60_75_minbias, float & numev_60_75_minbias_trigCorr, int & numev_75_95_minbias, int & numev_95_120_minbias, int & numev_120_X_minbias, TH1D *hPartPt_minbias, TH1D *hPartPt_minbias_trkCorr, TH1D *hPartPt_minbias_trkCorr_trigCorr, TH1D *hPartPt_0_60_minbias, TH1D *hPartPt_0_60_minbias_trkCorr, TH1D *hPartPt_0_60_minbias_trkCorr_trigCorr, TH1D*hRecMultiplicity);
+void fillHistograms(HiForest * c_minbias, JetData data, TH1D *hJetPt_minbias, TH1D *hJetPt_larger_minbias, TH1D *hJetPt_Jet40, TH1D *hJetPt_larger_Jet40, TH1D *hJetPt_Jet60, TH1D *hJetPt_Jet80, TH1D *hJetPt_Jet100, TH1D *hJetPt_Jet120, int & numev_minbias, float & numev_minbias_trigCorr, int & numev_0_40_minbias, float & numev_0_40_minbias_trigCorr, float & numev_40_60_minbias_trigCorr, int & numev_60_75_minbias, float & numev_60_75_minbias_trigCorr, int & numev_75_95_minbias, int & numev_95_120_minbias, int & numev_120_X_minbias, TH1D *hPartPt_minbias, TH1D *hPartPt_minbias_trkCorr, TH1D *hPartPt_minbias_trkCorr_trigCorr, TH1D *hPartPt_0_40_minbias, TH1D *hPartPt_0_40_minbias_trkCorr, TH1D *hPartPt_0_40_minbias_trkCorr_trigCorr, TH1D*hRecMultiplicity);
 //------------------------
 
 void CombineSpectra_minbias()
@@ -86,14 +86,15 @@ void CombineSpectra_minbias()
    TH1D * hPartPt_minbias = new TH1D("hPartPt_minbias","hPartPt_minbias",NumOfPtBins_part-1,&ptBins_part[0]);
    TH1D * hPartPt_minbias_trkCorr = new TH1D("hPartPt_minbias_trkCorr","hPartPt_minbias_trkCorr",NumOfPtBins_part-1,&ptBins_part[0]);
    TH1D * hPartPt_minbias_trkCorr_trigCorr = new TH1D("hPartPt_minbias_trkCorr_trigCorr","hPartPt_minbias_trkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
-//   TH1D * hPartPt_0_60_minbias = new TH1D("hPartPt_0_60_minbias","hPartPt_0_60_minbias",ptBins_part.size()-1,&ptBins_part[0]);
-   TH1D * hPartPt_0_60_minbias = new TH1D("hPartPt_0_60_minbias","hPartPt_0_60_minbias",NumOfPtBins_part-1,&ptBins_part[0]);
-   TH1D * hPartPt_0_60_minbias_trkCorr = new TH1D("hPartPt_0_60_minbias_trkCorr","hPartPt_0_60_minbias_trkCorr",NumOfPtBins_part-1,&ptBins_part[0]);
-   TH1D * hPartPt_0_60_minbias_trkCorr_trigCorr = new TH1D("hPartPt_0_60_minbias_trkCorr_trigCorr","hPartPt_0_60_minbias_trkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
+//   TH1D * hPartPt_0_40_minbias = new TH1D("hPartPt_0_40_minbias","hPartPt_0_40_minbias",ptBins_part.size()-1,&ptBins_part[0]);
+   TH1D * hPartPt_0_40_minbias = new TH1D("hPartPt_0_40_minbias","hPartPt_0_40_minbias",NumOfPtBins_part-1,&ptBins_part[0]);
+   TH1D * hPartPt_0_40_minbias_trkCorr = new TH1D("hPartPt_0_40_minbias_trkCorr","hPartPt_0_40_minbias_trkCorr",NumOfPtBins_part-1,&ptBins_part[0]);
+   TH1D * hPartPt_0_40_minbias_trkCorr_trigCorr = new TH1D("hPartPt_0_40_minbias_trkCorr_trigCorr","hPartPt_0_40_minbias_trkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
    TH1D * hNumEv_minbias = new TH1D("hNumEv_minbias","hNumEv_minbias",1,0.,1.);
    TH1D * hNumEv_minbias_trigCorr = new TH1D("hNumEv_minbias_trigCorr","hNumEv_minbias_trigCorr",1,0.,1.);
-   TH1D * hNumEv_0_60_minbias = new TH1D("hNumEv_0_60_minbias","hNumEv_0_60_minbias",1,0.,1.);
-   TH1D * hNumEv_0_60_minbias_trigCorr = new TH1D("hNumEv_0_60_minbias_trigCorr","hNumEv_0_60_minbias_trigCorr",1,0.,1.);
+   TH1D * hNumEv_0_40_minbias = new TH1D("hNumEv_0_40_minbias","hNumEv_0_40_minbias",1,0.,1.);
+   TH1D * hNumEv_0_40_minbias_trigCorr = new TH1D("hNumEv_0_40_minbias_trigCorr","hNumEv_0_40_minbias_trigCorr",1,0.,1.);
+   TH1D * hNumEv_40_60_minbias_trigCorr = new TH1D("hNumEv_40_60_minbias_trigCorr","hNumEv_40_60_minbias_trigCorr",1,0.,1.);
    TH1D * hNumEv_60_75_minbias = new TH1D("hNumEv_60_75_minbias","hNumEv_60_75_minbias",1,0.,1.);
    TH1D * hNumEv_60_75_minbias_trigCorr = new TH1D("hNumEv_60_75_minbias_trigCorr","hNumEv_60_75_minbias_trigCorr",1,0.,1.);
    TH1D * hNumEv_75_95_minbias = new TH1D("hNumEv_75_95_minbias","hNumEv_75_95_minbias",1,0.,1.);
@@ -113,29 +114,31 @@ void CombineSpectra_minbias()
    hPartPt_minbias->Sumw2();
    hPartPt_minbias_trkCorr->Sumw2();
    hPartPt_minbias_trkCorr_trigCorr->Sumw2();
-   hPartPt_0_60_minbias->Sumw2();
-   hPartPt_0_60_minbias_trkCorr->Sumw2();
-   hPartPt_0_60_minbias_trkCorr_trigCorr->Sumw2();
+   hPartPt_0_40_minbias->Sumw2();
+   hPartPt_0_40_minbias_trkCorr->Sumw2();
+   hPartPt_0_40_minbias_trkCorr_trigCorr->Sumw2();
 
    hRecMultiplicity->Sumw2();
 
    int numev_minbias = 0;
    float numev_minbias_trigCorr = 0;
-   int numev_0_60_minbias = 0;
-   float numev_0_60_minbias_trigCorr = 0;
+   int numev_0_40_minbias = 0;
+   float numev_0_40_minbias_trigCorr = 0;
+   float numev_40_60_minbias_trigCorr = 0;
    int numev_60_75_minbias = 0;
    float numev_60_75_minbias_trigCorr = 0;
    int numev_75_95_minbias = 0;
    int numev_95_120_minbias = 0;
    int numev_120_X_minbias = 0;
 
-   fillHistograms(c_minbias_1, data, hJetPt_minbias, hJetPt_larger_minbias, hJetPt_Jet40, hJetPt_larger_Jet40, hJetPt_Jet60, hJetPt_Jet80, hJetPt_Jet100, hJetPt_Jet120, numev_minbias, numev_minbias_trigCorr, numev_0_60_minbias, numev_0_60_minbias_trigCorr, numev_60_75_minbias, numev_60_75_minbias_trigCorr, numev_75_95_minbias, numev_95_120_minbias, numev_120_X_minbias, hPartPt_minbias, hPartPt_minbias_trkCorr, hPartPt_minbias_trkCorr_trigCorr, hPartPt_0_60_minbias, hPartPt_0_60_minbias_trkCorr, hPartPt_0_60_minbias_trkCorr_trigCorr,hRecMultiplicity);
-   fillHistograms(c_minbias_2, data, hJetPt_minbias, hJetPt_larger_minbias, hJetPt_Jet40, hJetPt_larger_Jet40, hJetPt_Jet60, hJetPt_Jet80, hJetPt_Jet100, hJetPt_Jet120, numev_minbias, numev_minbias_trigCorr, numev_0_60_minbias, numev_0_60_minbias_trigCorr, numev_60_75_minbias, numev_60_75_minbias_trigCorr, numev_75_95_minbias, numev_95_120_minbias, numev_120_X_minbias, hPartPt_minbias, hPartPt_minbias_trkCorr, hPartPt_minbias_trkCorr_trigCorr, hPartPt_0_60_minbias, hPartPt_0_60_minbias_trkCorr, hPartPt_0_60_minbias_trkCorr_trigCorr,hRecMultiplicity);
+   fillHistograms(c_minbias_1, data, hJetPt_minbias, hJetPt_larger_minbias, hJetPt_Jet40, hJetPt_larger_Jet40, hJetPt_Jet60, hJetPt_Jet80, hJetPt_Jet100, hJetPt_Jet120, numev_minbias, numev_minbias_trigCorr, numev_0_40_minbias, numev_0_40_minbias_trigCorr, numev_40_60_minbias_trigCorr, numev_60_75_minbias, numev_60_75_minbias_trigCorr, numev_75_95_minbias, numev_95_120_minbias, numev_120_X_minbias, hPartPt_minbias, hPartPt_minbias_trkCorr, hPartPt_minbias_trkCorr_trigCorr, hPartPt_0_40_minbias, hPartPt_0_40_minbias_trkCorr, hPartPt_0_40_minbias_trkCorr_trigCorr,hRecMultiplicity);
+   fillHistograms(c_minbias_2, data, hJetPt_minbias, hJetPt_larger_minbias, hJetPt_Jet40, hJetPt_larger_Jet40, hJetPt_Jet60, hJetPt_Jet80, hJetPt_Jet100, hJetPt_Jet120, numev_minbias, numev_minbias_trigCorr, numev_0_40_minbias, numev_0_40_minbias_trigCorr, numev_40_60_minbias_trigCorr, numev_60_75_minbias, numev_60_75_minbias_trigCorr, numev_75_95_minbias, numev_95_120_minbias, numev_120_X_minbias, hPartPt_minbias, hPartPt_minbias_trkCorr, hPartPt_minbias_trkCorr_trigCorr, hPartPt_0_40_minbias, hPartPt_0_40_minbias_trkCorr, hPartPt_0_40_minbias_trkCorr_trigCorr,hRecMultiplicity);
 
    hNumEv_minbias->SetBinContent(1,numev_minbias);
    hNumEv_minbias_trigCorr->SetBinContent(1,numev_minbias_trigCorr);
-   hNumEv_0_60_minbias->SetBinContent(1,numev_0_60_minbias);
-   hNumEv_0_60_minbias_trigCorr->SetBinContent(1,numev_0_60_minbias_trigCorr);
+   hNumEv_0_40_minbias->SetBinContent(1,numev_0_40_minbias);
+   hNumEv_0_40_minbias_trigCorr->SetBinContent(1,numev_0_40_minbias_trigCorr);
+   hNumEv_40_60_minbias_trigCorr->SetBinContent(1,numev_40_60_minbias_trigCorr);
    hNumEv_60_75_minbias->SetBinContent(1,numev_60_75_minbias);
    hNumEv_60_75_minbias_trigCorr->SetBinContent(1,numev_60_75_minbias_trigCorr);
    hNumEv_75_95_minbias->SetBinContent(1,numev_75_95_minbias);
@@ -152,9 +155,9 @@ void CombineSpectra_minbias()
    normalizeByBinWidth(hPartPt_minbias);
    normalizeByBinWidth(hPartPt_minbias_trkCorr);
    normalizeByBinWidth(hPartPt_minbias_trkCorr_trigCorr);
-   normalizeByBinWidth(hPartPt_0_60_minbias);
-   normalizeByBinWidth(hPartPt_0_60_minbias_trkCorr);
-   normalizeByBinWidth(hPartPt_0_60_minbias_trkCorr_trigCorr);
+   normalizeByBinWidth(hPartPt_0_40_minbias);
+   normalizeByBinWidth(hPartPt_0_40_minbias_trkCorr);
+   normalizeByBinWidth(hPartPt_0_40_minbias_trkCorr_trigCorr);
 
    f_output->cd();
    hJetPt_minbias->Write();
@@ -164,13 +167,14 @@ void CombineSpectra_minbias()
    hPartPt_minbias->Write();
    hPartPt_minbias_trkCorr->Write();
    hPartPt_minbias_trkCorr_trigCorr->Write();
-   hPartPt_0_60_minbias->Write();
-   hPartPt_0_60_minbias_trkCorr->Write();
-   hPartPt_0_60_minbias_trkCorr_trigCorr->Write();
+   hPartPt_0_40_minbias->Write();
+   hPartPt_0_40_minbias_trkCorr->Write();
+   hPartPt_0_40_minbias_trkCorr_trigCorr->Write();
    hNumEv_minbias->Write();
    hNumEv_minbias_trigCorr->Write();
-   hNumEv_0_60_minbias->Write();
-   hNumEv_0_60_minbias_trigCorr->Write();
+   hNumEv_0_40_minbias->Write();
+   hNumEv_0_40_minbias_trigCorr->Write();
+   hNumEv_40_60_minbias_trigCorr->Write();
    hNumEv_60_75_minbias->Write();
    hNumEv_60_75_minbias_trigCorr->Write();
    hNumEv_75_95_minbias->Write();
@@ -209,7 +213,7 @@ void normalizeByBinWidth(TH1D *histo) {
    }
 }
 
-void fillHistograms(HiForest * c_minbias, JetData data, TH1D *hJetPt_minbias, TH1D *hJetPt_larger_minbias, TH1D *hJetPt_Jet40, TH1D *hJetPt_larger_Jet40, TH1D *hJetPt_Jet60, TH1D *hJetPt_Jet80, TH1D *hJetPt_Jet100, TH1D *hJetPt_Jet120, int & numev_minbias, float & numev_minbias_trigCorr, int & numev_0_60_minbias, float & numev_0_60_minbias_trigCorr, int & numev_60_75_minbias, float & numev_60_75_minbias_trigCorr, int & numev_75_95_minbias, int & numev_95_120_minbias, int & numev_120_X_minbias, TH1D *hPartPt_minbias, TH1D *hPartPt_minbias_trkCorr, TH1D *hPartPt_minbias_trkCorr_trigCorr, TH1D *hPartPt_0_60_minbias, TH1D *hPartPt_0_60_minbias_trkCorr, TH1D *hPartPt_0_60_minbias_trkCorr_trigCorr, TH1D* hRecMultiplicity) {
+void fillHistograms(HiForest * c_minbias, JetData data, TH1D *hJetPt_minbias, TH1D *hJetPt_larger_minbias, TH1D *hJetPt_Jet40, TH1D *hJetPt_larger_Jet40, TH1D *hJetPt_Jet60, TH1D *hJetPt_Jet80, TH1D *hJetPt_Jet100, TH1D *hJetPt_Jet120, int & numev_minbias, float & numev_minbias_trigCorr, int & numev_0_40_minbias, float & numev_0_40_minbias_trigCorr, float & numev_40_60_minbias_trigCorr, int & numev_60_75_minbias, float & numev_60_75_minbias_trigCorr, int & numev_75_95_minbias, int & numev_95_120_minbias, int & numev_120_X_minbias, TH1D *hPartPt_minbias, TH1D *hPartPt_minbias_trkCorr, TH1D *hPartPt_minbias_trkCorr_trigCorr, TH1D *hPartPt_0_40_minbias, TH1D *hPartPt_0_40_minbias_trkCorr, TH1D *hPartPt_0_40_minbias_trkCorr_trigCorr, TH1D* hRecMultiplicity) {
 
    TrackCorrector corr("trackCorrections_HIN12017v1_HijingCombined.root");
    corr.load("trkCorr_HIN12017");
@@ -224,6 +228,9 @@ void fillHistograms(HiForest * c_minbias, JetData data, TH1D *hJetPt_minbias, TH
       data.leadingJetTrackMax = -1;
 
       if (i % 2000 == 0) cout <<i<<" / "<<c_minbias->GetEntries()<<endl;
+
+      if(c_minbias->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
+         continue;
 
       //event selection
       bool event_accepted = true;
@@ -289,10 +296,12 @@ void fillHistograms(HiForest * c_minbias, JetData data, TH1D *hJetPt_minbias, TH
 
       numev_minbias++;
       numev_minbias_trigCorr += evtWeight;
-      if(data.leadingJetPt<60.) {
-         numev_0_60_minbias++;
-         numev_0_60_minbias_trigCorr += evtWeight;
+      if(data.leadingJetPt<40.) {
+         numev_0_40_minbias++;
+         numev_0_40_minbias_trigCorr += evtWeight;
       }
+      if(data.leadingJetPt>=40. && data.leadingJetPt<60.)
+         numev_40_60_minbias_trigCorr += evtWeight;
       if(data.leadingJetPt>=60. && data.leadingJetPt<75.) {
          numev_60_75_minbias++;
          numev_60_75_minbias_trigCorr += evtWeight;
@@ -307,7 +316,8 @@ void fillHistograms(HiForest * c_minbias, JetData data, TH1D *hJetPt_minbias, TH
       //Tracks for analysis
       for(int j=0;j<c_minbias->track.nTrk;j++) {
          if(!((c_minbias->track.trkPt[j]>0.2) 
-             && (fabs(c_minbias->track.trkEta[j])<1.)
+             && (c_minbias->track.trkEta[j]<0.535)
+             && (c_minbias->track.trkEta[j]>-1.465)
              && (c_minbias->track.highPurity[j])
              && (fabs(c_minbias->track.trkDz1[j]/c_minbias->track.trkDzError1[j])<3)
              && (fabs(c_minbias->track.trkDxy1[j]/c_minbias->track.trkDxyError1[j])<3)
@@ -330,10 +340,10 @@ void fillHistograms(HiForest * c_minbias, JetData data, TH1D *hJetPt_minbias, TH
          hPartPt_minbias->Fill(c_minbias->track.trkPt[j]);
          hPartPt_minbias_trkCorr->Fill(c_minbias->track.trkPt[j],trkWeight);
          hPartPt_minbias_trkCorr_trigCorr->Fill(c_minbias->track.trkPt[j],trkWeight*evtWeight);
-         if(data.leadingJetPt<60.) {
-            hPartPt_0_60_minbias->Fill(c_minbias->track.trkPt[j]);
-            hPartPt_0_60_minbias_trkCorr->Fill(c_minbias->track.trkPt[j],trkWeight);
-            hPartPt_0_60_minbias_trkCorr_trigCorr->Fill(c_minbias->track.trkPt[j],trkWeight*evtWeight);
+         if(data.leadingJetPt<40.) {
+            hPartPt_0_40_minbias->Fill(c_minbias->track.trkPt[j]);
+            hPartPt_0_40_minbias_trkCorr->Fill(c_minbias->track.trkPt[j],trkWeight);
+            hPartPt_0_40_minbias_trkCorr_trigCorr->Fill(c_minbias->track.trkPt[j],trkWeight*evtWeight);
          }
       } //Tracks end
 
@@ -343,6 +353,6 @@ void fillHistograms(HiForest * c_minbias, JetData data, TH1D *hJetPt_minbias, TH
    numev_minbias_trigCorr /= (1.-zeroMultFraction);
 
    //approximation:
-   numev_0_60_minbias_trigCorr /= (1.-zeroMultFraction);
+   numev_0_40_minbias_trigCorr /= (1.-zeroMultFraction);
    // don't correct numev_60_75_trigCorr for 0 event fraction
 }

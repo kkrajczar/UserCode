@@ -16,6 +16,11 @@ void CompareToALICE () {
 
   bool doSave = true;
 
+  //Get binning and resolution correction
+  TFile *f_binningAndResol = new TFile("BinningAndResolutionCorrection.root");
+  TH1D *hBinningAndResol = (TH1D*)f_binningAndResol->Get("hPt_copy1");
+
+  //Get distributions
   TFile *f_CMS03 = new TFile("CombineSpectra_minbias_EtaCMS03.root");
   TFile *f_CMS0308 = new TFile("CombineSpectra_minbias_EtaCMS0308.root");
   TFile *f_CMS0813 = new TFile("CombineSpectra_minbias_EtaCMS0813.root");
@@ -31,23 +36,26 @@ void CompareToALICE () {
   hSpectrum_minbias_CMS03->Scale(1./numev_minbias_CMS03); //events
   hSpectrum_minbias_CMS03->Scale(1./(0.6)); //eta normalization
   normalizeBy2PiPt(hSpectrum_minbias_CMS03);
+  hSpectrum_minbias_CMS03->Divide(hBinningAndResol); // binning corr
 
   float numev_minbias_CMS0308 = hnumev_minbias_CMS0308->GetBinContent(1);
   hSpectrum_minbias_CMS0308->Scale(1./numev_minbias_CMS0308); //events
   hSpectrum_minbias_CMS0308->Scale(1./(0.5)); //eta normalization
   normalizeBy2PiPt(hSpectrum_minbias_CMS0308);
+  hSpectrum_minbias_CMS0308->Divide(hBinningAndResol); // binning corr
 
   float numev_minbias_CMS0813 = hnumev_minbias_CMS0813->GetBinContent(1);
   hSpectrum_minbias_CMS0813->Scale(1./numev_minbias_CMS0813); //events
   hSpectrum_minbias_CMS0813->Scale(1./(0.5)); //eta normalization
   normalizeBy2PiPt(hSpectrum_minbias_CMS0813);
+  hSpectrum_minbias_CMS0813->Divide(hBinningAndResol); // binning corr
 
   char * name_ALICE_CMS03 = "ALICE_EtaCMS03.dat";
   char * name_ALICE_CMS0308 = "ALICE_EtaCMS0308.dat";
   char * name_ALICE_CMS0813 = "ALICE_EtaCMS0813.dat";
-  char * eta_CMS03 = "|#eta_{CMS}|<0.3";
-  char * eta_CMS0308 = "0.3<|#eta_{CMS}|<0.8";
-  char * eta_CMS0813 = "0.8<|#eta_{CMS}|<1.3";
+  char * eta_CMS03 = "|#eta_{CM}|<0.3";
+  char * eta_CMS0308 = "0.3<|#eta_{CM}|<0.8";
+  char * eta_CMS0813 = "0.8<|#eta_{CM}|<1.3";
 
 
   //Plotting

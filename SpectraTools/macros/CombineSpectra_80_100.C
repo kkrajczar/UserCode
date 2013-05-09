@@ -119,6 +119,9 @@ void CombineSpectra_80_100()
 
       if (i % 2000 == 0) cout <<i<<" / "<<c_80_100->GetEntries()<<endl;
 
+      if(c_80_100->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
+         continue;
+
       //event selection
       bool event_accepted = true;
       if(!(c_80_100->skim.phfPosFilter1 && c_80_100->skim.phfNegFilter1
@@ -168,7 +171,8 @@ void CombineSpectra_80_100()
       //Tracks
       for(int j=0;j<c_80_100->track.nTrk;j++) {
          if(!((c_80_100->track.trkPt[j]>0.2) 
-             && (fabs(c_80_100->track.trkEta[j])<1.0)
+             && (c_80_100->track.trkEta[j]<0.535)
+             && (c_80_100->track.trkEta[j]>-1.465)
              && (c_80_100->track.highPurity[j])
              && (fabs(c_80_100->track.trkDz1[j]/c_80_100->track.trkDzError1[j])<3)
              && (fabs(c_80_100->track.trkDxy1[j]/c_80_100->track.trkDxyError1[j])<3)

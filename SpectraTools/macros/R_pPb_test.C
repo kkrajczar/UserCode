@@ -25,7 +25,9 @@ void R_pPb_test()
    // Get pp referece spectrum - Is this Ed^3sigma/dp^3 or Ed^3N/dp^3
    TFile *f_ppRef_pt = new TFile("output_interpolation_KK_LogFitForC6.root");
    TFile *f_ppRef_xt = new TFile("output_interpolation_KK_LogFitForC6_TryExtrapolationInXT.root");
-   TH1D* h_ppRef_LogLogpt = (TH1D*)f_ppRef_pt->Get("h5020_To100GeV_FromLogFit");
+//   TFile *f_ppRef_xt = new TFile("output_interpolation_KK_LogFitForC6_TryExtrapolationInXT_LowerLimit.root");
+   TH1D* h_ppRef_LogLogpt = (TH1D*)f_ppRef_pt->Get("h5020_To100GeV_FromLogFit"); //including CDF data
+//   TH1D* h_ppRef_LogLogpt = (TH1D*)f_ppRef_pt->Get("h5020_To100GeV_09_7_FromLogFit"); //only CMS data
    TH1D* h_ppRef_LogLogxt = (TH1D*)f_ppRef_xt->Get("h5020_FromLogFit");
    // Convert the reference to differential yield
    convertToYield(h_ppRef_LogLogpt,70.0); // Sigma_inel at 5.02 TeV
@@ -35,6 +37,13 @@ void R_pPb_test()
    //Get pPb spectrum
    TFile *f_pPb = new TFile("PtSpectraCombination.root");
    TH1D *hCombined_pPb = (TH1D*)f_pPb->Get("hSumPartPt");
+
+   //Get binning and resolution correction
+   TFile *f_binningAndResol = new TFile("BinningAndResolutionCorrection.root");
+   TH1D *hBinningAndResol = (TH1D*)f_binningAndResol->Get("hPt_copy1");
+
+   //Apply binning and resolution correction
+   hCombined_pPb->Divide(hBinningAndResol);   
 
    float ncoll = 7.9;
 
@@ -87,10 +96,10 @@ void R_pPb_test()
    l1->SetNDC();
    l1->SetTextSize(0.035);
    l1->Draw();
-   TLatex *l2 = new TLatex(0.2,0.25,"pPb: no resolution/binning correction");
-   l2->SetNDC();
-   l2->SetTextSize(0.035);
-   l2->Draw();
+//   TLatex *l2 = new TLatex(0.2,0.25,"pPb: no resolution/binning correction");
+//   l2->SetNDC();
+//   l2->SetTextSize(0.035);
+//   l2->Draw();
    if(DoSave) {
       c2->SaveAs("Figs/R_pPb_test_c2.gif");
       c2->SaveAs("Figs/R_pPb_test_c2.eps");

@@ -14,7 +14,7 @@ TH1D* divideHistosDiffBins(TH1D* h_Num, TH1D* h_Den);
 void normalizeByBinWidth(TH1D *histo);
 //------------------------
 
-void CombineSpectra_40_60()
+void CombineSpectra_20()
 {
    //Plan: trigger efficiencies (up to a plateau): Not sure though if this would work
    // Jet40: from MB
@@ -29,17 +29,17 @@ void CombineSpectra_40_60()
    gStyle->SetPadRightMargin(0.16);
 
    bool doSave = false;
-   TFile * f_output = new TFile("CombineSpectra_40_60.root","recreate");
+   TFile * f_output = new TFile("CombineSpectra_20.root","recreate");
 
    TrackCorrector corr("trackCorrections_HIN12017v1_HijingCombined.root");
    corr.load("trkCorr_HIN12017");
 
    // Define the input file and HiForest
-//   char *infName_minbias = "root://eoscms//eos/cms/store/group/phys_heavyions/kjung/MinBiasUPCForest_v71/MergedForest_withCones_MinBiasUPC_v71_1.root";
-   char *infName_40_60 = "root://eoscms//eos/cms/store/caf/user/yjlee/pPb2013/promptReco/PA2013_HiForest_PromptReco_JSonPPb_forestv72_HLT40_HLT60.root";
-   HiForest *c_40_60 = new HiForest(infName_40_60,"",cPPb);
-//   c_40_60->doTrackCorrections=1;
-//   c_40_60->InitTree();
+   char *infName_20 = "root://eoscms//eos/cms/store/group/phys_heavyions/krajczar/pPbJet20_v4/mergedJet20Forest_KK.root";
+//   char *infName_20 = "/tmp/krajczar/mergedJet20Forest_KK.root";
+   HiForest *c_20 = new HiForest(infName_20,"",cPPb);
+//   c_20->doTrackCorrections=1;
+//   c_20->InitTree();
 
    std::vector<Double_t> ptBins;
    const Double_t small = 1e-3;
@@ -83,60 +83,55 @@ void CombineSpectra_40_60()
    TH1D * hJetPt_Jet120 = new TH1D("hJetPt_Jet120","hJetPt_Jet120",200,0.,200.);
 */
    TH1D * hJetPt_Jet20 = new TH1D("hJetPt_Jet20","hJetPt_Jet20",ptBins.size()-1,&ptBins[0]);
-   TH1D * hJetPt_Jet40 = new TH1D("hJetPt_Jet40","hJetPt_Jet40",ptBins.size()-1,&ptBins[0]);
-   TH1D * hJetPt_larger_Jet40 = new TH1D("hJetPt_larger_Jet40","hJetPt_larger_Jet40",ptBins_larger.size()-1,&ptBins_larger[0]);
-   TH1D * hJetPt_Jet60 = new TH1D("hJetPt_Jet60","hJetPt_Jet60",ptBins.size()-1,&ptBins[0]);
-   TH1D * hJetPt_Jet60_Req40 = new TH1D("hJetPt_Jet60_Req40","hJetPt_Jet60_Req40",ptBins.size()-1,&ptBins[0]);
-   TH1D * hJetPt_Jet80 = new TH1D("hJetPt_Jet80","hJetPt_Jet80",ptBins.size()-1,&ptBins[0]);
-   TH1D * hJetPt_Jet100 = new TH1D("hJetPt_Jet100","hJetPt_Jet100",ptBins.size()-1,&ptBins[0]);
-   TH1D * hJetPt_Jet120 = new TH1D("hJetPt_Jet120","hJetPt_Jet120",ptBins.size()-1,&ptBins[0]);
+   TH1D * hJetPt_larger_Jet20 = new TH1D("hJetPt_larger_Jet20","hJetPt_larger_Jet20",ptBins_larger.size()-1,&ptBins_larger[0]);
 
 //   TH1D * hPartPt_60_75_Jet40 = new TH1D("hPartPt_60_75_Jet40","hPartPt_60_75_Jet40",ptBins_part.size()-1,&ptBins_part[0]);
+   TH1D * hPartPt_40_60_Jet20_trkCorr = new TH1D("hPartPt_40_60_Jet20_trkCorr","hPartPt_40_60_Jet20_trkCorr",NumOfPtBins_part-1,&ptBins_part[0]);
+   TH1D * hPartPt_40_60_Jet20_trkCorr_trigCorr = new TH1D("hPartPt_40_60_Jet20_trkCorr_trigCorr","hPartPt_40_60_Jet20_trkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
    TH1D * hPartPt_60_75_Jet40 = new TH1D("hPartPt_60_75_Jet40","hPartPt_60_75_Jet40",NumOfPtBins_part-1,&ptBins_part[0]);
-   TH1D * hPartPt_60_75_Jet40_corrected = new TH1D("hPartPt_60_75_Jet40_corrected","hPartPt_60_75_Jet40_corrected",NumOfPtBins_part-1,&ptBins_part[0]);
+   TH1D * hPartPt_60_75_Jet40_trkCorr = new TH1D("hPartPt_60_75_Jet40_trkCorr","hPartPt_60_75_Jet40_trkCorr",NumOfPtBins_part-1,&ptBins_part[0]);
 //   TH1D * hPartPt_75_95_Jet60 = new TH1D("hPartPt_75_95_Jet60","hPartPt_75_95_Jet60",ptBins_part.size()-1,&ptBins_part[0]);
    TH1D * hPartPt_75_95_Jet60 = new TH1D("hPartPt_75_95_Jet60","hPartPt_75_95_Jet60",NumOfPtBins_part-1,&ptBins_part[0]);
-   TH1D * hPartPt_75_95_Jet60_corrected = new TH1D("hPartPt_75_95_Jet60_corrected","hPartPt_75_95_Jet60_corrected",NumOfPtBins_part-1,&ptBins_part[0]);
+   TH1D * hPartPt_75_95_Jet60_trkCorr = new TH1D("hPartPt_75_95_Jet60_trkCorr","hPartPt_75_95_Jet60_trkCorr",NumOfPtBins_part-1,&ptBins_part[0]);
+   TH1D * hNumEv_40_60_Jet20_trigCorr = new TH1D("hNumEv_40_60_Jet20_trigCorr","hNumEv_40_60_Jet20_trigCorr",1,0.,1.);
    TH1D * hNumEv_60_75_Jet40 = new TH1D("hNumEv_60_75_Jet40","hNumEv_60_75_Jet40",1,0.,1.);
    TH1D * hNumEv_75_95_Jet60 = new TH1D("hNumEv_75_95_Jet60","hNumEv_75_95_Jet60",1,0.,1.);
 
    hJetPt_Jet20->Sumw2();
-   hJetPt_Jet40->Sumw2();
-   hJetPt_larger_Jet40->Sumw2();
-   hJetPt_Jet60->Sumw2();
-   hJetPt_Jet80->Sumw2();
-   hJetPt_Jet100->Sumw2();
-   hJetPt_Jet120->Sumw2();
+   hJetPt_larger_Jet20->Sumw2();
 
+   hPartPt_40_60_Jet20_trkCorr->Sumw2();
+   hPartPt_40_60_Jet20_trkCorr_trigCorr->Sumw2();
    hPartPt_60_75_Jet40->Sumw2();
-   hPartPt_60_75_Jet40_corrected->Sumw2();
+   hPartPt_60_75_Jet40_trkCorr->Sumw2();
    hPartPt_75_95_Jet60->Sumw2();
-   hPartPt_75_95_Jet60_corrected->Sumw2();
+   hPartPt_75_95_Jet60_trkCorr->Sumw2();
 
+   int numev_40_60_Jet20_trigCorr = 0;
    int numev_60_75_Jet40 = 0;
    int numev_75_95_Jet60 = 0;
 
-   for (int i=0;i<c_40_60->GetEntries();i++) {
+   for (int i=0;i<c_20->GetEntries();i++) {
 //   for (int i=0;i<100000;i++) {
 
-      c_40_60->GetEntry(i);
+      c_20->GetEntry(i);
 
       data.leadingJetPt = -1;
       data.leadingJetIt = -1;
       data.leadingJetTrackMax = -1;
 
-      if (i % 2000 == 0) cout <<i<<" / "<<c_40_60->GetEntries()<<endl;
+      if (i % 2000 == 0) cout <<i<<" / "<<c_20->GetEntries()<<endl;
 
-      if(c_40_60->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
+      if(c_20->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
          continue;
 
       //event selection
       bool event_accepted = true;
-      if(!(c_40_60->skim.phfPosFilter1 && c_40_60->skim.phfNegFilter1
-          && c_40_60->skim.pBeamScrapingFilter
-          && c_40_60->skim.pprimaryvertexFilter
-          && c_40_60->skim.pVertexFilterCutGplus
-          && TMath::Abs(c_40_60->evt.vz)<15.
+      if(!(c_20->skim.phfPosFilter1 && c_20->skim.phfNegFilter1
+          && c_20->skim.pBeamScrapingFilter
+          && c_20->skim.pprimaryvertexFilter
+          && c_20->skim.pVertexFilterCutGplus
+          && TMath::Abs(c_20->evt.vz)<15.
           )
         ) event_accepted = false;
 
@@ -144,64 +139,78 @@ void CombineSpectra_40_60()
          continue;
 
       //Jets
-      for (int j=0;j<c_40_60->akPu3PF.nref;j++) {
-         if (fabs(c_40_60->akPu3PF.jteta[j])>2.5) continue;
-//         if (fabs(c_40_60->akPu3PF.jtpt[j])<30) continue;
-//         if (c_40_60->akPu3PF.trackMax[j]<4) continue; //Do we need this?
-         if (c_40_60->akPu3PF.rawpt[j]<15) continue;
-         if (c_40_60->akPu3PF.jtpt[j]>data.leadingJetPt) {
-            data.leadingJetPt = c_40_60->akPu3PF.jtpt[j];
-            data.leadingJetEta = c_40_60->akPu3PF.jteta[j];
-            data.leadingJetPhi = c_40_60->akPu3PF.jtphi[j];
-            data.leadingJetTrackMax = c_40_60->akPu3PF.trackMax[j];
+      for (int j=0;j<c_20->akPu3PF.nref;j++) {
+         if (fabs(c_20->akPu3PF.jteta[j])>2.5) continue;
+//         if (fabs(c_20->akPu3PF.jtpt[j])<30) continue;
+//         if (c_20->akPu3PF.trackMax[j]<4) continue; //Do we need this?
+         if (c_20->akPu3PF.rawpt[j]<15) continue;
+         if (c_20->akPu3PF.jtpt[j]>data.leadingJetPt) {
+            data.leadingJetPt = c_20->akPu3PF.jtpt[j];
+            data.leadingJetEta = c_20->akPu3PF.jteta[j];
+            data.leadingJetPhi = c_20->akPu3PF.jtphi[j];
+            data.leadingJetTrackMax = c_20->akPu3PF.trackMax[j];
             data.leadingJetIt = j;
          }
       }
 
-      if(c_40_60->hlt.HLT_PAJet40_NoJetID_v1) {
-        hJetPt_Jet40->Fill(data.leadingJetPt);
-        hJetPt_larger_Jet40->Fill(data.leadingJetPt);
+      if(c_20->hlt.HLT_PAJet20_NoJetID_v1) {
+        hJetPt_Jet20->Fill(data.leadingJetPt);
+        hJetPt_larger_Jet20->Fill(data.leadingJetPt);
       }
-      if(c_40_60->hlt.HLT_PAJet40_NoJetID_v1 && c_40_60->hlt.HLT_PAJet60_NoJetID_v1)
-        hJetPt_Jet60_Req40->Fill(data.leadingJetPt);
-      if(c_40_60->hlt.HLT_PAJet60_NoJetID_v1)
-        hJetPt_Jet60->Fill(data.leadingJetPt);
-      if(c_40_60->hlt.HLT_PAJet80_NoJetID_v1)
-        hJetPt_Jet80->Fill(data.leadingJetPt);
-      if(c_40_60->hlt.HLT_PAJet100_NoJetID_v1)
-        hJetPt_Jet100->Fill(data.leadingJetPt);
-      if(c_40_60->hlt.HLT_PAJet120_NoJetID_v1)
-        hJetPt_Jet120->Fill(data.leadingJetPt);
 
-      if(c_40_60->hlt.HLT_PAJet40_NoJetID_v1 && data.leadingJetPt>=60. && data.leadingJetPt<75.)
+      if(c_20->hlt.HLT_PAJet40_NoJetID_v1 && data.leadingJetPt>=60. && data.leadingJetPt<75.)
          numev_60_75_Jet40++;
-      if(c_40_60->hlt.HLT_PAJet60_NoJetID_v1 && data.leadingJetPt>=75. && data.leadingJetPt<95.)
+      if(c_20->hlt.HLT_PAJet60_NoJetID_v1 && data.leadingJetPt>=75. && data.leadingJetPt<95.)
          numev_75_95_Jet60++;
 
+      //Tracks for event weights; eta-pt cut removed
+      int trackMult = 0;
+      for(int j=0;j<c_20->track.nTrk;j++) {
+         if(!((c_20->track.highPurity[j])
+             && (fabs(c_20->track.trkDz1[j]/c_20->track.trkDzError1[j])<3)
+             && (fabs(c_20->track.trkDxy1[j]/c_20->track.trkDxyError1[j])<3)
+             && (c_20->track.trkPtError[j]/c_20->track.trkPt[j]<0.1)
+            ))
+            continue;
+         trackMult++;
+      }
+      // Don't analyze 0 multiplicity events; correction added later
+      if(trackMult==0)
+        { std::cerr<<" Jet20, but 0 multiplicity!!" << std::endl; continue; }
+      double evtWeight = 1.;
+      evtWeight = corr.getEventWeight(trackMult);
+
+      if(data.leadingJetPt>40. && data.leadingJetPt<60.)
+         numev_40_60_Jet20_trigCorr += evtWeight;
+
       //Tracks
-      for(int j=0;j<c_40_60->track.nTrk;j++) {
-         if(!((c_40_60->track.trkPt[j]>0.2) 
-             && (c_40_60->track.trkEta[j]<0.535)
-             && (c_40_60->track.trkEta[j]>-1.465)
-             && (c_40_60->track.highPurity[j])
-             && (fabs(c_40_60->track.trkDz1[j]/c_40_60->track.trkDzError1[j])<3)
-             && (fabs(c_40_60->track.trkDxy1[j]/c_40_60->track.trkDxyError1[j])<3)
-             && (c_40_60->track.trkPtError[j]/c_40_60->track.trkPt[j]<0.1)
+      for(int j=0;j<c_20->track.nTrk;j++) {
+         if(!((c_20->track.trkPt[j]>0.2) 
+             && (c_20->track.trkEta[j]<0.535)
+             && (c_20->track.trkEta[j]>-1.465)
+             && (c_20->track.highPurity[j])
+             && (fabs(c_20->track.trkDz1[j]/c_20->track.trkDzError1[j])<3)
+             && (fabs(c_20->track.trkDxy1[j]/c_20->track.trkDxyError1[j])<3)
+             && (c_20->track.trkPtError[j]/c_20->track.trkPt[j]<0.1)
            ))
             continue;            
 
          if(data.leadingJetPt==-1) //for corrections
             data.leadingJetPt=10.;
          double trkWeight = 1.;
-         trkWeight = corr.getWeight(c_40_60->track.trkPt[j],c_40_60->track.trkEta[j],data.leadingJetPt);
+         trkWeight = corr.getWeight(c_20->track.trkPt[j],c_20->track.trkEta[j],data.leadingJetPt);
 
-         if(c_40_60->hlt.HLT_PAJet40_NoJetID_v1 && data.leadingJetPt>=60. && data.leadingJetPt<75.) {
-            hPartPt_60_75_Jet40->Fill(c_40_60->track.trkPt[j]);
-            hPartPt_60_75_Jet40_corrected->Fill(c_40_60->track.trkPt[j],trkWeight);
+         if(c_20->hlt.HLT_PAJet20_NoJetID_v1 && data.leadingJetPt>=40. && data.leadingJetPt<60.) {
+            hPartPt_40_60_Jet20_trkCorr->Fill(c_20->track.trkPt[j],trkWeight);
+            hPartPt_40_60_Jet20_trkCorr_trigCorr->Fill(c_20->track.trkPt[j],trkWeight*evtWeight);
          }
-         if(c_40_60->hlt.HLT_PAJet60_NoJetID_v1 && data.leadingJetPt>=75. && data.leadingJetPt<95.) {
-            hPartPt_75_95_Jet60->Fill(c_40_60->track.trkPt[j]);
-            hPartPt_75_95_Jet60_corrected->Fill(c_40_60->track.trkPt[j],trkWeight);
+         if(c_20->hlt.HLT_PAJet40_NoJetID_v1 && data.leadingJetPt>=60. && data.leadingJetPt<75.) {
+            hPartPt_60_75_Jet40->Fill(c_20->track.trkPt[j]);
+            hPartPt_60_75_Jet40_trkCorr->Fill(c_20->track.trkPt[j],trkWeight);
+         }
+         if(c_20->hlt.HLT_PAJet60_NoJetID_v1 && data.leadingJetPt>=75. && data.leadingJetPt<95.) {
+            hPartPt_75_95_Jet60->Fill(c_20->track.trkPt[j]);
+            hPartPt_75_95_Jet60_trkCorr->Fill(c_20->track.trkPt[j],trkWeight);
          }
 
       } //Tracks end
@@ -209,16 +218,15 @@ void CombineSpectra_40_60()
 
    hNumEv_60_75_Jet40->SetBinContent(1,numev_60_75_Jet40);
    hNumEv_75_95_Jet60->SetBinContent(1,numev_75_95_Jet60);
-   normalizeByBinWidth(hJetPt_Jet40);
-   normalizeByBinWidth(hJetPt_larger_Jet40);
-   normalizeByBinWidth(hJetPt_Jet60);
-   normalizeByBinWidth(hJetPt_Jet80);
-   normalizeByBinWidth(hJetPt_Jet100);
-   normalizeByBinWidth(hJetPt_Jet120);
+   hNumEv_40_60_Jet20_trigCorr->SetBinContent(1,numev_40_60_Jet20_trigCorr);
+   normalizeByBinWidth(hJetPt_Jet20);
+   normalizeByBinWidth(hJetPt_larger_Jet20);
+   normalizeByBinWidth(hPartPt_40_60_Jet20_trkCorr);
+   normalizeByBinWidth(hPartPt_40_60_Jet20_trkCorr_trigCorr);
    normalizeByBinWidth(hPartPt_60_75_Jet40);
-   normalizeByBinWidth(hPartPt_60_75_Jet40_corrected);
+   normalizeByBinWidth(hPartPt_60_75_Jet40_trkCorr);
    normalizeByBinWidth(hPartPt_75_95_Jet60);
-   normalizeByBinWidth(hPartPt_75_95_Jet60_corrected);
+   normalizeByBinWidth(hPartPt_75_95_Jet60_trkCorr);
 /*
    TCanvas *c1 = new TCanvas("c1","c1");
    c1->SetLogy();
@@ -314,14 +322,15 @@ void CombineSpectra_40_60()
    }
 */
    f_output->cd();
-   hJetPt_Jet40->Write();
-   hJetPt_larger_Jet40->Write();
-   hJetPt_Jet60->Write();
-   hJetPt_Jet60_Req40->Write();
+   hJetPt_Jet20->Write();
+   hJetPt_larger_Jet20->Write();
+   hPartPt_40_60_Jet20_trkCorr->Write();
+   hPartPt_40_60_Jet20_trkCorr_trigCorr->Write();
    hPartPt_60_75_Jet40->Write();
-   hPartPt_60_75_Jet40_corrected->Write();
+   hPartPt_60_75_Jet40_trkCorr->Write();
    hPartPt_75_95_Jet60->Write();
-   hPartPt_75_95_Jet60_corrected->Write();
+   hPartPt_75_95_Jet60_trkCorr->Write();
+   hNumEv_40_60_Jet20_trigCorr->Write();
    hNumEv_60_75_Jet40->Write();
    hNumEv_75_95_Jet60->Write();
    f_output->Close();
