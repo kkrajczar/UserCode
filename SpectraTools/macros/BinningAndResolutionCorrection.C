@@ -13,6 +13,10 @@ TH1D* divideHistosDiffBins(TH1D* h_Num, TH1D* h_Den);
 void RemoveLargeerrorPoints(TH1D *h_input);
 double fitFunctionPtoP(double *x, double *par);
 double fitRegion(double *x, double *par);
+void normalizeByBinWidth(TH1D *histo);
+void pseudoExperiment1(TF1 *fitTot, TH1D* histo);
+void pseudoExperiment2(TF1 *fitTot, TH1D* histo);
+void GaborsCrossCheck(TF1 *fitTot, TH1D* pseudoHist);
 //------------------------
 
 void BinningAndResolutionCorrection()
@@ -26,7 +30,7 @@ void BinningAndResolutionCorrection()
 //   gStyle->SetPadRightMargin(0.16);
    gStyle->SetOptFit(0);
 
-   bool doSave = false;
+   bool doSave = true;
 
    TF1 *fRes = new TF1("fRes","[0]*pow(x,[1])/(1+exp([2]*(x+[3])))+ [4]*pow(x,[5])",0.6,90.);
    fRes->FixParameter(0,2.86898e-03);
@@ -38,7 +42,7 @@ void BinningAndResolutionCorrection()
 
    TFile *f_output = new TFile("BinningAndResolutionCorrection.root","recreate");
 
-   TFile *f_input = new TFile("PtSpectraCombination.root");
+   TFile *f_input = new TFile("PtSpectraCombination_StagedNormalization.root");
    TH1D *hPt = (TH1D*)f_input->Get("hSumPartPt");
 
    TCanvas *c1 = new TCanvas("c1","c1");
@@ -144,6 +148,11 @@ void BinningAndResolutionCorrection()
    leg2->SetFillColor(0);
    leg2->SetBorderSize(0);
    leg2->Draw();
+   if(doSave) {
+      c1->SaveAs("Figs/BinningAndResolutionCorrection_c1.gif");
+      c1->SaveAs("Figs/BinningAndResolutionCorrection_c1.eps");
+      c1->SaveAs("Figs/BinningAndResolutionCorrection_c1.C");
+   }
 
 
    TCanvas *c2 = new TCanvas("c2","c2");
@@ -157,45 +166,83 @@ void BinningAndResolutionCorrection()
    hPt_copy1->SetMaximum(1.5);
    hPt_copy1->SetMinimum(0.5);
    hPt_copy1->Draw();
-/*
-   TH1D *hPt_copy2 = (TH1D*)hPt->Clone("hPt_copy2");
-   TH1D *hPt_copy3 = (TH1D*)hPt->Clone("hPt_copy3");
-   TH1D *hPt_copy4 = (TH1D*)hPt->Clone("hPt_copy4");
-   hPt_copy1->Divide(fFit1);
-   hPt_copy2->Divide(fFit2);
-   hPt_copy3->Divide(fFit3);
-   hPt_copy4->Divide(fFit4);
-   hPt_copy1->SetLineColor(2);
-   hPt_copy1->SetMarkerColor(2);
-   hPt_copy2->SetLineColor(4);
-   hPt_copy2->SetMarkerColor(4);
-   hPt_copy3->SetLineColor(6);
-   hPt_copy3->SetMarkerColor(6);
-   hPt_copy4->SetLineColor(8);
-   hPt_copy4->SetMarkerColor(8);
-   hPt_copy1->SetMaximum(2.);
-   hPt_copy1->Draw();
-   hPt_copy2->Draw("same");
-   hPt_copy3->Draw("same");
-   hPt_copy4->Draw("same");
-*/
-/*
-   TLegend *leg2 = new TLegend(0.6,0.8,0.8,0.9,NULL,"brNDC");
-   leg2->AddEntry(h2_370,"Pt370","pl");
-   leg2->AddEntry(h2_80,"Pt80","pl");
-   leg2->SetFillStyle(0);
-   leg2->SetFillColor(0);
-   leg2->SetBorderSize(0);
-   leg2->Draw();
    if(doSave) {
       c2->SaveAs("Figs/BinningAndResolutionCorrection_c2.gif");
       c2->SaveAs("Figs/BinningAndResolutionCorrection_c2.eps");
       c2->SaveAs("Figs/BinningAndResolutionCorrection_c2.C");
    }
-*/
+
+   //Run the pseudo experiment1
+   TH1D * hPt_pseudo1 = (TH1D*)hPt->Clone("hPt_pseudo1");
+   hPt_pseudo1->Reset();
+   pseudoExperiment1(fitTot, hPt_pseudo1);   
+   normalizeByBinWidth(hPt_pseudo1);
+   TCanvas *c_r1 = new TCanvas("c_r1","c_r1");
+   c_r1->cd();
+   c_r1->SetLogy();
+   hPt_pseudo1->Draw();
+   if(doSave) {
+      c_r1->SaveAs("Figs/BinningAndResolutionCorrection_c_r1.gif");
+      c_r1->SaveAs("Figs/BinningAndResolutionCorrection_c_r1.eps");
+      c_r1->SaveAs("Figs/BinningAndResolutionCorrection_c_r1.C");
+   }
+
+   TCanvas *c_r1_ratio = new TCanvas("c_r1_ratio","c_r1_ratio");
+   c_r1_ratio->cd();
+   c_r1_ratio->SetLogx();
+   TH1D *hPt_pseudo1_copy1 = (TH1D*)hPt_pseudo1->Clone("hPt_pseudo1_copy1");
+   hPt_pseudo1_copy1->Divide(fitTot);
+   TF1 * fScale = new TF1("fScale","[0]",0.4,1.);
+   hPt_pseudo1_copy1->Fit("fScale","R0");
+   hPt_pseudo1_copy1->Scale(1./fScale->GetParameter(0));
+   hPt_pseudo1_copy1->SetMinimum(0.5);
+   hPt_pseudo1_copy1->SetMaximum(1.5);
+   hPt_pseudo1_copy1->GetYaxis()->SetTitle("Binning correction from pseudo-exp1");
+   hPt_pseudo1_copy1->Draw();
+   if(doSave) {
+      c_r1_ratio->SaveAs("Figs/BinningAndResolutionCorrection_c_r1_ratio.gif");
+      c_r1_ratio->SaveAs("Figs/BinningAndResolutionCorrection_c_r1_ratio.eps");
+      c_r1_ratio->SaveAs("Figs/BinningAndResolutionCorrection_c_r1_ratio.C");
+   }
+
+   //Run the pseudo experiment2
+   TH1D * hPt_pseudo2 = (TH1D*)hPt->Clone("hPt_pseudo2");
+   hPt_pseudo2->Reset();
+   pseudoExperiment2(fitTot, hPt_pseudo2);   
+   normalizeByBinWidth(hPt_pseudo2);
+   TCanvas *c_r2 = new TCanvas("c_r2","c_r2");
+   c_r2->cd();
+   c_r2->SetLogy();
+   hPt_pseudo2->Draw();
+   if(doSave) {
+      c_r2->SaveAs("Figs/BinningAndResolutionCorrection_c_r2.gif");
+      c_r2->SaveAs("Figs/BinningAndResolutionCorrection_c_r2.eps");
+      c_r2->SaveAs("Figs/BinningAndResolutionCorrection_c_r2.C");
+   }
+
+   TCanvas *c_r2_ratio = new TCanvas("c_r2_ratio","c_r2_ratio");
+   c_r2_ratio->cd();
+   c_r2_ratio->SetLogx();
+   TH1D *hPt_pseudo2_copy1 = (TH1D*)hPt_pseudo2->Clone("hPt_pseudo2_copy1");
+   hPt_pseudo2_copy1->Divide(fitTot);
+   TF1 * fScale = new TF1("fScale","[0]",0.4,1.);
+   hPt_pseudo2_copy1->Fit("fScale","R0");
+   hPt_pseudo2_copy1->Scale(1./fScale->GetParameter(0));
+   hPt_pseudo2_copy1->SetMinimum(0.5);
+   hPt_pseudo2_copy1->SetMaximum(1.5);
+   hPt_pseudo2_copy1->GetYaxis()->SetTitle("Binning correction from pseudo-exp2");
+   hPt_pseudo2_copy1->Draw();
+   if(doSave) {
+      c_r2_ratio->SaveAs("Figs/BinningAndResolutionCorrection_c_r2_ratio.gif");
+      c_r2_ratio->SaveAs("Figs/BinningAndResolutionCorrection_c_r2_ratio.eps");
+      c_r2_ratio->SaveAs("Figs/BinningAndResolutionCorrection_c_r2_ratio.C");
+   }
 
    f_output->cd();
    hPt_copy1->Write();
+   fitTot->Write();
+   hPt_pseudo1_copy1->Write();
+   hPt_pseudo2_copy1->Write();
    f_output->Close();
 }
 
@@ -264,3 +311,36 @@ double fitRegion(double *x, double *par) {
   return par[0]*exp(par[1]*x[0]+par[2])*pow((x[0]+par[3]),par[4]);
 }
 
+void normalizeByBinWidth(TH1D *histo) {
+   for(int i = 1; i <= histo->GetNbinsX(); i++) {
+      float content = histo->GetBinContent(i);
+      float error = histo->GetBinError(i);
+      histo->SetBinContent(i,content/histo->GetBinWidth(i));
+      histo->SetBinError(i,error/histo->GetBinWidth(i));
+   }
+}
+
+void pseudoExperiment1(TF1 *fitTot, TH1D* histo) {
+  Int_t until = 1e+8;
+  Int_t printout = 1e+7;
+  for(int r = 0; r<=until; r++) {
+     if (r % printout == 0) cout << r <<" / "<< until <<endl;
+     Float_t random = fitTot->GetRandom();
+     histo->Fill(random);
+  }
+}
+
+void pseudoExperiment2(TF1 *fitTot, TH1D* histo) {
+  Int_t until = 1e+8;
+  Int_t printout = 1e+7;
+  for(int r = 0; r<=until; r++) {
+     if (r % printout == 0) cout << r <<" / "<< until <<endl;
+     Float_t random = gRandom->Uniform(0.4,104.);
+     double weight = fitTot->Eval(random);
+     histo->Fill(random, weight);
+  }
+}
+
+void GaborsCrossCheck(TF1 *fitTot, TH1D* pseudoHist) {
+
+}
