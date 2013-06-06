@@ -12,7 +12,7 @@
 
 TH1D* divideHistosDiffBins(TH1D* h_Num, TH1D* h_Den);
 void normalizeByBinWidth(TH1D *histo);
-void fillHistograms(HiForest * c, TH2D *hRes);
+void fillHistograms(HiForest *c, TH2D *hRes1, TH2D *hRes2, TH2D *hRes3, TH2D *hRes4, TH2D *hRes5, TH2D *hRes6, TH2D *hRes7, TH2D *hRes8);
 //------------------------
 
 void Resolution()
@@ -46,33 +46,124 @@ void Resolution()
    for(pt =   48.; pt <   60.-small; pt +=  4./20. ) ptBins.push_back(pt); 
    for(pt =   60.; pt <   76.-small; pt +=  8./20. ) ptBins.push_back(pt); 
    for(pt =   76.; pt <   140.-small; pt +=  16./20. ) ptBins.push_back(pt); 
-   for(pt =   140.; pt <   364.-small; pt +=  32./20. ) ptBins.push_back(pt); 
-   ptBins.push_back(364.0);
+   for(pt =   140.; pt <   300.-small; pt +=  32./10. ) ptBins.push_back(pt); 
+   ptBins.push_back(300.0);
 
    std::vector<Double_t> ptBins_larger;
    Double_t pt_larger;
-   for(pt_larger =   0.  ; pt_larger <   48.-small; pt_larger +=  2.) ptBins_larger.push_back(pt_larger);
-   for(pt_larger =   48.; pt_larger <   60.-small; pt_larger +=  4.) ptBins_larger.push_back(pt_larger);
-   for(pt_larger =   60.; pt_larger <   76.-small; pt_larger +=  8.) ptBins_larger.push_back(pt_larger);
-   for(pt_larger =   76.; pt_larger <   140.-small; pt_larger +=  16.) ptBins_larger.push_back(pt_larger);
-   for(pt_larger =   140.; pt_larger <   364.-small; pt_larger +=  32.) ptBins_larger.push_back(pt_larger);
-   ptBins_larger.push_back(364.0);
+   for(pt_larger =   0.  ; pt_larger <   48.-small; pt_larger +=  2./10.) ptBins_larger.push_back(pt_larger);
+   for(pt_larger =   48.; pt_larger <   60.-small; pt_larger +=  4./10. ) ptBins_larger.push_back(pt_larger); 
+   for(pt_larger =   60.; pt_larger <   76.-small; pt_larger +=  8./10. ) ptBins_larger.push_back(pt_larger); 
+   for(pt_larger =   76.; pt_larger <   140.-small; pt_larger +=  16./10. ) ptBins_larger.push_back(pt_larger); 
+   for(pt_larger =   140.; pt_larger <   300.-small; pt_larger +=  32./10. ) ptBins_larger.push_back(pt_larger); 
+   ptBins_larger.push_back(300.0);
+
+   std::vector<Double_t> ptBins_smaller;
+   Double_t pt_smaller;
+   for(pt_smaller =   0.  ; pt_smaller <   48.-small; pt_smaller +=  2./40.) ptBins_smaller.push_back(pt_smaller);
+   for(pt_smaller =   48.; pt_smaller <   60.-small; pt_smaller +=  4./40. ) ptBins_smaller.push_back(pt_smaller); 
+   for(pt_smaller =   60.; pt_smaller <   76.-small; pt_smaller +=  8./20. ) ptBins_smaller.push_back(pt_smaller); 
+   for(pt_smaller =   76.; pt_smaller <   140.-small; pt_smaller +=  16./20. ) ptBins_smaller.push_back(pt_smaller); 
+   for(pt_smaller =   140.; pt_smaller <   300.-small; pt_smaller +=  32./10. ) ptBins_smaller.push_back(pt_smaller); 
+   ptBins_smaller.push_back(300.0);
+
+   std::vector<Double_t> ptBins_evensmaller;
+   Double_t pt_evensmaller;
+   for(pt_evensmaller =   0.  ; pt_evensmaller <   28.-small; pt_evensmaller +=  2./80.) ptBins_evensmaller.push_back(pt_evensmaller);
+   for(pt_evensmaller =   28.; pt_evensmaller <   60.-small; pt_evensmaller +=  4./40. ) ptBins_evensmaller.push_back(pt_evensmaller); 
+   for(pt_evensmaller =   60.; pt_evensmaller <   76.-small; pt_evensmaller +=  8./20. ) ptBins_evensmaller.push_back(pt_evensmaller); 
+   for(pt_evensmaller =   76.; pt_evensmaller <   140.-small; pt_evensmaller +=  16./20. ) ptBins_evensmaller.push_back(pt_evensmaller); 
+   for(pt_evensmaller =   140.; pt_evensmaller <   300.-small; pt_evensmaller +=  32./10. ) ptBins_evensmaller.push_back(pt_evensmaller); 
+   ptBins_evensmaller.push_back(300.0);
+
+   std::vector<Double_t> ptBins_evensmaller2;
+   Double_t pt_evensmaller2;
+   for(pt_evensmaller2 =   0.  ; pt_evensmaller2 <   18.-small; pt_evensmaller2 +=  2./160.) ptBins_evensmaller2.push_back(pt_evensmaller2);
+   for(pt_evensmaller2 =   18.; pt_evensmaller2 <   60.-small; pt_evensmaller2 +=  4./20. ) ptBins_evensmaller2.push_back(pt_evensmaller2); 
+   for(pt_evensmaller2 =   60.; pt_evensmaller2 <   76.-small; pt_evensmaller2 +=  8./20. ) ptBins_evensmaller2.push_back(pt_evensmaller2); 
+   for(pt_evensmaller2 =   76.; pt_evensmaller2 <   140.-small; pt_evensmaller2 +=  16./20. ) ptBins_evensmaller2.push_back(pt_evensmaller2); 
+   for(pt_evensmaller2 =   140.; pt_evensmaller2 <   300.-small; pt_evensmaller2 +=  32./10. ) ptBins_evensmaller2.push_back(pt_evensmaller2); 
+   ptBins_evensmaller2.push_back(300.0);
+
+   std::vector<Double_t> ptBins_evensmaller3;
+   Double_t pt_evensmaller3;
+   for(pt_evensmaller3 =   0.  ; pt_evensmaller3 <   8.-small; pt_evensmaller3 +=  2./320.) ptBins_evensmaller3.push_back(pt_evensmaller3);
+   for(pt_evensmaller3 =   8.; pt_evensmaller3 <   60.-small; pt_evensmaller3 +=  4./40. ) ptBins_evensmaller3.push_back(pt_evensmaller3); 
+   for(pt_evensmaller3 =   60.; pt_evensmaller3 <   76.-small; pt_evensmaller3 +=  8./20. ) ptBins_evensmaller3.push_back(pt_evensmaller3); 
+   for(pt_evensmaller3 =   76.; pt_evensmaller3 <   140.-small; pt_evensmaller3 +=  16./20. ) ptBins_evensmaller3.push_back(pt_evensmaller3); 
+   for(pt_evensmaller3 =   140.; pt_evensmaller3 <   300.-small; pt_evensmaller3 +=  32./10. ) ptBins_evensmaller3.push_back(pt_evensmaller3); 
+   ptBins_evensmaller3.push_back(300.0);
+
+   std::vector<Double_t> ptBins_evensmaller4;
+   Double_t pt_evensmaller4;
+   for(pt_evensmaller4 =   0.  ; pt_evensmaller4 <   8.-small; pt_evensmaller4 +=  2./640.) ptBins_evensmaller4.push_back(pt_evensmaller4);
+   for(pt_evensmaller4 =   8.; pt_evensmaller4 <   60.-small; pt_evensmaller4 +=  4./40. ) ptBins_evensmaller4.push_back(pt_evensmaller4); 
+   for(pt_evensmaller4 =   60.; pt_evensmaller4 <   76.-small; pt_evensmaller4 +=  8./20. ) ptBins_evensmaller4.push_back(pt_evensmaller4); 
+   for(pt_evensmaller4 =   76.; pt_evensmaller4 <   140.-small; pt_evensmaller4 +=  16./20. ) ptBins_evensmaller4.push_back(pt_evensmaller4); 
+   for(pt_evensmaller4 =   140.; pt_evensmaller4 <   300.-small; pt_evensmaller4 +=  32./10. ) ptBins_evensmaller4.push_back(pt_evensmaller4); 
+   ptBins_evensmaller4.push_back(300.0);
 
    Int_t NumOfPtBins_part = 34;
    double ptBins_part[] = {0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 3.2, 4.0, 4.8, 5.6, 6.4, 7.2, 9.6, 12.0, 14.4, 19.2, 24.0, 28.8, 35.2, 41.6, 48.0, 60.8, 73.6, 86.4, 103.6};
 
+
+   Int_t NumOfPtBins_005 = 26;
+   double ptBins_005[] = {0.6, 0.8, 1.0, 1.5, 2.1, 3., 3.5, 4.5, 5.2, 6., 7., 8., 10., 12.5, 15., 17.5, 20., 25., 31., 37., 43., 50., 60., 70., 80., 100., 120.};
+
    TH2D * hSimPtRecPt_80 = new TH2D("hSimPtRecPt_80","hSimPtRecPt_80",ptBins.size()-1,&ptBins[0],ptBins.size()-1,&ptBins[0]);
+   TH2D * hSimPtRecPt_80_005 = new TH2D("hSimPtRecPt_80_005","hSimPtRecPt_80_005",NumOfPtBins_005-1,&ptBins_005[0],NumOfPtBins_005-1,&ptBins_005[0]);
+   TH2D * hSimPtRecPt_80_larger = new TH2D("hSimPtRecPt_80_larger","hSimPtRecPt_80_larger",ptBins_larger.size()-1,&ptBins_larger[0],ptBins_larger.size()-1,&ptBins_larger[0]);
+   TH2D * hSimPtRecPt_80_smaller = new TH2D("hSimPtRecPt_80_smaller","hSimPtRecPt_80_smaller",ptBins_smaller.size()-1,&ptBins_smaller[0],ptBins_smaller.size()-1,&ptBins_smaller[0]);
+   TH2D * hSimPtRecPt_80_evensmaller = new TH2D("hSimPtRecPt_80_evensmaller","hSimPtRecPt_80_evensmaller",ptBins_evensmaller.size()-1,&ptBins_evensmaller[0],ptBins_evensmaller.size()-1,&ptBins_evensmaller[0]);
+   TH2D * hSimPtRecPt_80_evensmaller2 = new TH2D("hSimPtRecPt_80_evensmaller2","hSimPtRecPt_80_evensmaller2",ptBins_evensmaller2.size()-1,&ptBins_evensmaller2[0],ptBins_evensmaller2.size()-1,&ptBins_evensmaller2[0]);
+   TH2D * hSimPtRecPt_80_evensmaller3 = new TH2D("hSimPtRecPt_80_evensmaller3","hSimPtRecPt_80_evensmaller3",ptBins_evensmaller3.size()-1,&ptBins_evensmaller3[0],ptBins_evensmaller3.size()-1,&ptBins_evensmaller3[0]);
+   TH2D * hSimPtRecPt_80_evensmaller4 = new TH2D("hSimPtRecPt_80_evensmaller4","hSimPtRecPt_80_evensmaller4",ptBins_evensmaller4.size()-1,&ptBins_evensmaller4[0],ptBins_evensmaller4.size()-1,&ptBins_evensmaller4[0]);
    TH2D * hSimPtRecPt_370 = new TH2D("hSimPtRecPt_370","hSimPtRecPt_370",ptBins.size()-1,&ptBins[0],ptBins.size()-1,&ptBins[0]);
+   TH2D * hSimPtRecPt_370_005 = new TH2D("hSimPtRecPt_370_005","hSimPtRecPt_370_005",NumOfPtBins_005-1,&ptBins_005[0],NumOfPtBins_005-1,&ptBins_005[0]);
+   TH2D * hSimPtRecPt_370_larger = new TH2D("hSimPtRecPt_370_larger","hSimPtRecPt_370_larger",ptBins_larger.size()-1,&ptBins_larger[0],ptBins_larger.size()-1,&ptBins_larger[0]);
+   TH2D * hSimPtRecPt_370_smaller = new TH2D("hSimPtRecPt_370_smaller","hSimPtRecPt_370_smaller",ptBins_smaller.size()-1,&ptBins_smaller[0],ptBins_smaller.size()-1,&ptBins_smaller[0]);
+   TH2D * hSimPtRecPt_370_evensmaller = new TH2D("hSimPtRecPt_370_evensmaller","hSimPtRecPt_370_evensmaller",ptBins_evensmaller.size()-1,&ptBins_evensmaller[0],ptBins_evensmaller.size()-1,&ptBins_evensmaller[0]);
+   TH2D * hSimPtRecPt_370_evensmaller2 = new TH2D("hSimPtRecPt_370_evensmaller2","hSimPtRecPt_370_evensmaller2",ptBins_evensmaller2.size()-1,&ptBins_evensmaller2[0],ptBins_evensmaller2.size()-1,&ptBins_evensmaller2[0]);
+   TH2D * hSimPtRecPt_370_evensmaller3 = new TH2D("hSimPtRecPt_370_evensmaller3","hSimPtRecPt_370_evensmaller3",ptBins_evensmaller3.size()-1,&ptBins_evensmaller3[0],ptBins_evensmaller3.size()-1,&ptBins_evensmaller3[0]);
+   TH2D * hSimPtRecPt_370_evensmaller4 = new TH2D("hSimPtRecPt_370_evensmaller4","hSimPtRecPt_370_evensmaller4",ptBins_evensmaller4.size()-1,&ptBins_evensmaller4[0],ptBins_evensmaller4.size()-1,&ptBins_evensmaller4[0]);
 
    hSimPtRecPt_80->Sumw2();
+   hSimPtRecPt_80_005->Sumw2();
+   hSimPtRecPt_80_larger->Sumw2();
+   hSimPtRecPt_80_smaller->Sumw2();
+   hSimPtRecPt_80_evensmaller->Sumw2();
+   hSimPtRecPt_80_evensmaller2->Sumw2();
+   hSimPtRecPt_80_evensmaller3->Sumw2();
+   hSimPtRecPt_80_evensmaller4->Sumw2();
    hSimPtRecPt_370->Sumw2();
+   hSimPtRecPt_370_005->Sumw2();
+   hSimPtRecPt_370_larger->Sumw2();
+   hSimPtRecPt_370_smaller->Sumw2();
+   hSimPtRecPt_370_evensmaller->Sumw2();
+   hSimPtRecPt_370_evensmaller2->Sumw2();
+   hSimPtRecPt_370_evensmaller3->Sumw2();
+   hSimPtRecPt_370_evensmaller4->Sumw2();
 
-   fillHistograms(c_80,hSimPtRecPt_80);
-   fillHistograms(c_370,hSimPtRecPt_370);
+   fillHistograms(c_80, hSimPtRecPt_80, hSimPtRecPt_80_larger, hSimPtRecPt_80_smaller, hSimPtRecPt_80_evensmaller, hSimPtRecPt_80_evensmaller2, hSimPtRecPt_80_evensmaller3,hSimPtRecPt_80_evensmaller4, hSimPtRecPt_80_005);
+   fillHistograms(c_370, hSimPtRecPt_370, hSimPtRecPt_370_larger, hSimPtRecPt_370_smaller, hSimPtRecPt_370_evensmaller, hSimPtRecPt_370_evensmaller2, hSimPtRecPt_370_evensmaller3, hSimPtRecPt_370_evensmaller4, hSimPtRecPt_370_005);
 
    f_output->cd();
    hSimPtRecPt_80->Write();
+   hSimPtRecPt_80_005->Write();
+   hSimPtRecPt_80_larger->Write();
+   hSimPtRecPt_80_smaller->Write();
+   hSimPtRecPt_80_evensmaller->Write();
+   hSimPtRecPt_80_evensmaller2->Write();
+   hSimPtRecPt_80_evensmaller3->Write();
+   hSimPtRecPt_80_evensmaller4->Write();
    hSimPtRecPt_370->Write();
+   hSimPtRecPt_370_005->Write();
+   hSimPtRecPt_370_larger->Write();
+   hSimPtRecPt_370_smaller->Write();
+   hSimPtRecPt_370_evensmaller->Write();
+   hSimPtRecPt_370_evensmaller2->Write();
+   hSimPtRecPt_370_evensmaller3->Write();
+   hSimPtRecPt_370_evensmaller4->Write();
    f_output->Close();
 }
 
@@ -105,7 +196,7 @@ void normalizeByBinWidth(TH1D *histo) {
    }
 }
 
-void fillHistograms(HiForest * c_MC, TH2D* hSimPtRecPt_80) {
+void fillHistograms(HiForest * c_MC, TH2D* hRes1, TH2D* hRes2, TH2D* hRes3, TH2D* hRes4, TH2D* hRes5, TH2D* hRes6, TH2D* hRes7, TH2D* hRes8) {
 
    for (int i=0;i<c_MC->GetEntries();i++) {
 //   for (int i=0;i<10000;i++) {
@@ -145,22 +236,29 @@ void fillHistograms(HiForest * c_MC, TH2D* hSimPtRecPt_80) {
            ))
            continue;
 
-         hSimPtRecPt_80->Fill(c_MC->track.pPt[j],c_MC->track.mtrkPt[j]);
+         hRes1->Fill(c_MC->track.pPt[j],c_MC->track.mtrkPt[j]);
+         hRes2->Fill(c_MC->track.pPt[j],c_MC->track.mtrkPt[j]);
+         hRes3->Fill(c_MC->track.pPt[j],c_MC->track.mtrkPt[j]);
+         hRes4->Fill(c_MC->track.pPt[j],c_MC->track.mtrkPt[j]);
+         hRes5->Fill(c_MC->track.pPt[j],c_MC->track.mtrkPt[j]);
+         hRes6->Fill(c_MC->track.pPt[j],c_MC->track.mtrkPt[j]);
+         hRes7->Fill(c_MC->track.pPt[j],c_MC->track.mtrkPt[j]);
+         hRes8->Fill(c_MC->track.pPt[j],c_MC->track.mtrkPt[j]);
       }
    }//event
 /*
    TCanvas *c1 = new TCanvas("c1","c1");
    c1->cd();
    c1->SetLogz();
-   hSimPtRecPt_80->GetXaxis()->CenterTitle();
-   hSimPtRecPt_80->GetYaxis()->CenterTitle();
-   hSimPtRecPt_80->GetXaxis()->SetTitle("p_{T}^{Sim} [GeV/c]");
-   hSimPtRecPt_80->GetYaxis()->SetTitle("p_{T}^{Rec} [GeV/c]");
-//   hSimPtRecPt_80->SetNdivisions(505);
-   hSimPtRecPt_80->SetMarkerColor(1);
-   hSimPtRecPt_80->SetLineColor(1);
-   hSimPtRecPt_80->SetMarkerStyle(20);
-   hSimPtRecPt_80->Draw("colz");
+   hRes1->GetXaxis()->CenterTitle();
+   hRes1->GetYaxis()->CenterTitle();
+   hRes1->GetXaxis()->SetTitle("p_{T}^{Sim} [GeV/c]");
+   hRes1->GetYaxis()->SetTitle("p_{T}^{Rec} [GeV/c]");
+//   hRes1->SetNdivisions(505);
+   hRes1->SetMarkerColor(1);
+   hRes1->SetLineColor(1);
+   hRes1->SetMarkerStyle(20);
+   hRes1->Draw("colz");
 */
 /*
    TLegend *leg1 = new TLegend(0.50,0.75,0.82,0.89,NULL,"brNDC");
