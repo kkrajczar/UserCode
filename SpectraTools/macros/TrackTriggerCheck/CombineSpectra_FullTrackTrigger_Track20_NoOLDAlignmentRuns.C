@@ -14,7 +14,7 @@ TH1D* divideHistosDiffBins(TH1D* h_Num, TH1D* h_Den);
 void normalizeByBinWidth(TH1D *histo);
 //------------------------
 
-void CombineSpectra_FullTrackTrigger_Track12()
+void CombineSpectra_FullTrackTrigger_Track20_NoOLDAlignmentRuns()
 {
    //Plan: trigger efficiencies (up to a plateau): Not sure though if this would work
    // Jet40: from MB
@@ -29,16 +29,16 @@ void CombineSpectra_FullTrackTrigger_Track12()
    gStyle->SetPadRightMargin(0.16);
 
    bool doSave = false;
-   TFile * f_output = new TFile("CombineSpectra_FullTrackTrigger_Track12.root","recreate");
+   TFile * f_output = new TFile("CombineSpectra_FullTrackTrigger_Track20_NoOLDAlignmentRuns.root","recreate");
 
    TrackCorrector corr("../trackCorrections_HIN12017v1_HijingCombined.root");
    corr.load("trkCorr_HIN12017");
 
    // Define the input file and HiForest
-   char *infName_FullTrackTrigger_Track12 = "root://eoscms//eos/cms/store/group/phys_heavyions/yjlee/pPb2013/promptReco/PA2013_HiForest_PromptReco_highPtTrack12_JSonPPb_forestv84.root";
-   HiForest *c_FullTrackTrigger_Track12 = new HiForest(infName_FullTrackTrigger_Track12,"",cPPb);
-//   c_FullTrackTrigger_Track12->doTrackCorrections=1;
-//   c_FullTrackTrigger_Track12->InitTree();
+   char *infName_FullTrackTrigger_Track20 = "root://eoscms//eos/cms/store/group/phys_heavyions/krajczar/FullTrack20/PA2013_HiForest_PromptReco_highPtTrack20_JSonPPb_forestv84.root";
+   HiForest *c_FullTrackTrigger_Track20 = new HiForest(infName_FullTrackTrigger_Track20,"",cPPb);
+//   c_FullTrackTrigger_Track20->doTrackCorrections=1;
+//   c_FullTrackTrigger_Track20->InitTree();
 
    std::vector<Double_t> ptBins;
    const Double_t small = 1e-3;
@@ -60,47 +60,47 @@ void CombineSpectra_FullTrackTrigger_Track12()
    JetData data(t,1);
 
    //For trigger
-   TH1D * hPartPt_FullTrack12_trkCorr = new TH1D("hPartPt_FullTrack12_trkCorr","hPartPt_FullTrack12_trkCorr",NumOfPtBins_part-1,&ptBins_part[0]);
-   TH1D * hPartPt_FullTrack12_trkCorr_trigCorr = new TH1D("hPartPt_FullTrack12_trkCorr_trigCorr","hPartPt_FullTrack12_trkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
-   TH1D * hPartPt_FullTrack12_trkCorr_smallerBins = new TH1D("hPartPt_FullTrack12_trkCorr_smallerBins","hPartPt_FullTrack12_trkCorr_smallerBins",ptBins.size()-1,&ptBins[0]);
-   TH1D * hPartPt_FullTrack12_trkCorr_trigCorr_smallerBins = new TH1D("hPartPt_FullTrack12_trkCorr_trigCorr_smallerBins","hPartPt_FullTrack12_trkCorr_trigCorr_smallerBins",ptBins.size()-1,&ptBins[0]);
+   TH1D * hPartPt_FullTrack20_trkCorr = new TH1D("hPartPt_FullTrack20_trkCorr","hPartPt_FullTrack20_trkCorr",NumOfPtBins_part-1,&ptBins_part[0]);
+   TH1D * hPartPt_FullTrack20_trkCorr_trigCorr = new TH1D("hPartPt_FullTrack20_trkCorr_trigCorr","hPartPt_FullTrack20_trkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
+   TH1D * hPartPt_FullTrack20_trkCorr_smallerBins = new TH1D("hPartPt_FullTrack20_trkCorr_smallerBins","hPartPt_FullTrack20_trkCorr_smallerBins",ptBins.size()-1,&ptBins[0]);
+   TH1D * hPartPt_FullTrack20_trkCorr_trigCorr_smallerBins = new TH1D("hPartPt_FullTrack20_trkCorr_trigCorr_smallerBins","hPartPt_FullTrack20_trkCorr_trigCorr_smallerBins",ptBins.size()-1,&ptBins[0]);
 
    //For spectra combination
-   TH1D * hPartPt_FullTrack12_14_22_trkCorr_trigCorr = new TH1D("hPartPt_FullTrack12_14_22_trkCorr_trigCorr","hPartPt_FullTrack12_SpectCombt_rkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
-   TH1D * hNumEv_FullTrack12_14_22_trigCorr = new TH1D("hNumEv_FullTrack12_14_22_trigCorr","hNumEv_FullTrack12_14_22_trigCorr",1,0.,1.);
-   TH1D * hNumEv_FullTrack12_22_32_trigCorr = new TH1D("hNumEv_FullTrack12_22_32_trigCorr","hNumEv_FullTrack12_22_32_trigCorr",1,0.,1.);
+   TH1D * hPartPt_FullTrack20_22_32_trkCorr_trigCorr = new TH1D("hPartPt_FullTrack20_22_32_trkCorr_trigCorr","hPartPt_FullTrack20_SpectCombt_rkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
+   TH1D * hNumEv_FullTrack20_22_32_trigCorr = new TH1D("hNumEv_FullTrack20_22_32_trigCorr","hNumEv_FullTrack20_22_32_trigCorr",1,0.,1.);
+   TH1D * hNumEv_FullTrack20_32_X_trigCorr = new TH1D("hNumEv_FullTrack20_32_X_trigCorr","hNumEv_FullTrack20_32_X_trigCorr",1,0.,1.);
 
-   hPartPt_FullTrack12_trkCorr->Sumw2();
-   hPartPt_FullTrack12_trkCorr_trigCorr->Sumw2();
-   hPartPt_FullTrack12_trkCorr_smallerBins->Sumw2();
-   hPartPt_FullTrack12_trkCorr_trigCorr_smallerBins->Sumw2();
+   hPartPt_FullTrack20_trkCorr->Sumw2();
+   hPartPt_FullTrack20_trkCorr_trigCorr->Sumw2();
+   hPartPt_FullTrack20_trkCorr_smallerBins->Sumw2();
+   hPartPt_FullTrack20_trkCorr_trigCorr_smallerBins->Sumw2();
 
-   hPartPt_FullTrack12_14_22_trkCorr_trigCorr->Sumw2();
+   hPartPt_FullTrack20_22_32_trkCorr_trigCorr->Sumw2();
 
-   int numev_FullTrack12_14_22_trigCorr = 0;
-   int numev_FullTrack12_22_32_trigCorr = 0;
+   int numev_FullTrack20_22_32_trigCorr = 0;
+   int numev_FullTrack20_32_X_trigCorr = 0;
 
-   for (int i=0;i<c_FullTrackTrigger_Track12->GetEntries();i++) {
+   for (int i=0;i<c_FullTrackTrigger_Track20->GetEntries();i++) {
 //   for (int i=0;i<1000000;i++) {
 
-      c_FullTrackTrigger_Track12->GetEntry(i);
+      c_FullTrackTrigger_Track20->GetEntry(i);
 
       data.leadingJetPt = -1;
       data.leadingJetIt = -1;
       data.leadingJetTrackMax = -1;
 
-      if (i % 2000 == 0) cout <<i<<" / "<<c_FullTrackTrigger_Track12->GetEntries()<<endl;
+      if (i % 2000 == 0) cout <<i<<" / "<<c_FullTrackTrigger_Track20->GetEntries()<<endl;
 
-      if(c_FullTrackTrigger_Track12->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
+      if(c_FullTrackTrigger_Track20->evt.run<210676 || c_FullTrackTrigger_Track20->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
          continue;
 
       //event selection
       bool event_accepted = true;
-      if(!(c_FullTrackTrigger_Track12->skim.phfPosFilter1 && c_FullTrackTrigger_Track12->skim.phfNegFilter1
-          && c_FullTrackTrigger_Track12->skim.pBeamScrapingFilter
-          && c_FullTrackTrigger_Track12->skim.pprimaryvertexFilter
-          && c_FullTrackTrigger_Track12->skim.pVertexFilterCutGplus
-          && TMath::Abs(c_FullTrackTrigger_Track12->evt.vz)<15.
+      if(!(c_FullTrackTrigger_Track20->skim.phfPosFilter1 && c_FullTrackTrigger_Track20->skim.phfNegFilter1
+          && c_FullTrackTrigger_Track20->skim.pBeamScrapingFilter
+          && c_FullTrackTrigger_Track20->skim.pprimaryvertexFilter
+          && c_FullTrackTrigger_Track20->skim.pVertexFilterCutGplus
+          && TMath::Abs(c_FullTrackTrigger_Track20->evt.vz)<15.
           )
         ) event_accepted = false;
 
@@ -108,69 +108,66 @@ void CombineSpectra_FullTrackTrigger_Track12()
          continue;
 
       //Jets
-      for (int j=0;j<c_FullTrackTrigger_Track12->akPu3PF.nref;j++) {
-         if (fabs(c_FullTrackTrigger_Track12->akPu3PF.jteta[j])>2.5) continue;
-//         if (fabs(c_FullTrackTrigger_Track12->akPu3PF.jtpt[j])<30) continue;
-//         if (c_FullTrackTrigger_Track12->akPu3PF.trackMax[j]<4) continue; //Do we need this?
-         if (c_FullTrackTrigger_Track12->akPu3PF.rawpt[j]<15) continue;
-         if (c_FullTrackTrigger_Track12->akPu3PF.jtpt[j]>data.leadingJetPt) {
-            data.leadingJetPt = c_FullTrackTrigger_Track12->akPu3PF.jtpt[j];
-            data.leadingJetEta = c_FullTrackTrigger_Track12->akPu3PF.jteta[j];
-            data.leadingJetPhi = c_FullTrackTrigger_Track12->akPu3PF.jtphi[j];
-            data.leadingJetTrackMax = c_FullTrackTrigger_Track12->akPu3PF.trackMax[j];
+      for (int j=0;j<c_FullTrackTrigger_Track20->akPu3PF.nref;j++) {
+         if (fabs(c_FullTrackTrigger_Track20->akPu3PF.jteta[j])>2.5) continue;
+//         if (fabs(c_FullTrackTrigger_Track20->akPu3PF.jtpt[j])<30) continue;
+//         if (c_FullTrackTrigger_Track20->akPu3PF.trackMax[j]<4) continue; //Do we need this?
+         if (c_FullTrackTrigger_Track20->akPu3PF.rawpt[j]<15) continue;
+         if (c_FullTrackTrigger_Track20->akPu3PF.jtpt[j]>data.leadingJetPt) {
+            data.leadingJetPt = c_FullTrackTrigger_Track20->akPu3PF.jtpt[j];
+            data.leadingJetEta = c_FullTrackTrigger_Track20->akPu3PF.jteta[j];
+            data.leadingJetPhi = c_FullTrackTrigger_Track20->akPu3PF.jtphi[j];
+            data.leadingJetTrackMax = c_FullTrackTrigger_Track20->akPu3PF.trackMax[j];
             data.leadingJetIt = j;
          }
       }
 
       //Tracks for event weights; eta-pt cut removed
       int trackMult = 0;
-      for(int j=0;j<c_FullTrackTrigger_Track12->track.nTrk;j++) {
-         if(!((c_FullTrackTrigger_Track12->track.highPurity[j])
-             && (fabs(c_FullTrackTrigger_Track12->track.trkDz1[j]/c_FullTrackTrigger_Track12->track.trkDzError1[j])<3)
-             && (fabs(c_FullTrackTrigger_Track12->track.trkDxy1[j]/c_FullTrackTrigger_Track12->track.trkDxyError1[j])<3)
-             && (c_FullTrackTrigger_Track12->track.trkPtError[j]/c_FullTrackTrigger_Track12->track.trkPt[j]<0.1)
+      for(int j=0;j<c_FullTrackTrigger_Track20->track.nTrk;j++) {
+         if(!((c_FullTrackTrigger_Track20->track.highPurity[j])
+             && (fabs(c_FullTrackTrigger_Track20->track.trkDz1[j]/c_FullTrackTrigger_Track20->track.trkDzError1[j])<3)
+             && (fabs(c_FullTrackTrigger_Track20->track.trkDxy1[j]/c_FullTrackTrigger_Track20->track.trkDxyError1[j])<3)
+             && (c_FullTrackTrigger_Track20->track.trkPtError[j]/c_FullTrackTrigger_Track20->track.trkPt[j]<0.1)
             ))
             continue;
          trackMult++;
       }
       // Don't analyze 0 multiplicity events; add correction later if needed
       if(trackMult==0)
-        { std::cerr<<" FullTrack12 but 0 multiplicity!!" << std::endl; continue; }
+        { std::cerr<<" FullTrack20 but 0 multiplicity!!" << std::endl; continue; }
       double evtWeight = 1.;
       evtWeight = corr.getEventWeight(trackMult);
 
       //Tracks for event classification: same as for analysis
-      bool FullTrack12_trackAbove14 = false;
-      bool FullTrack12_trackAbove22 = false;
-      bool FullTrack12_trackAbove32 = false;
-      for(int j=0;j<c_FullTrackTrigger_Track12->track.nTrk;j++) {
-         if(!((c_FullTrackTrigger_Track12->track.trkPt[j]>0.2) 
-             && (c_FullTrackTrigger_Track12->track.trkEta[j]<0.535)
-             && (c_FullTrackTrigger_Track12->track.trkEta[j]>-1.465)
-             && (c_FullTrackTrigger_Track12->track.highPurity[j])
-             && (fabs(c_FullTrackTrigger_Track12->track.trkDz1[j]/c_FullTrackTrigger_Track12->track.trkDzError1[j])<3)
-             && (fabs(c_FullTrackTrigger_Track12->track.trkDxy1[j]/c_FullTrackTrigger_Track12->track.trkDxyError1[j])<3)
-             && (c_FullTrackTrigger_Track12->track.trkPtError[j]/c_FullTrackTrigger_Track12->track.trkPt[j]<0.1)
+      bool FullTrack20_trackAbove22 = false;
+      bool FullTrack20_trackAbove32 = false;
+      for(int j=0;j<c_FullTrackTrigger_Track20->track.nTrk;j++) {
+         if(!((c_FullTrackTrigger_Track20->track.trkPt[j]>0.2) 
+             && (c_FullTrackTrigger_Track20->track.trkEta[j]<0.535)
+             && (c_FullTrackTrigger_Track20->track.trkEta[j]>-1.465)
+             && (c_FullTrackTrigger_Track20->track.highPurity[j])
+             && (fabs(c_FullTrackTrigger_Track20->track.trkDz1[j]/c_FullTrackTrigger_Track20->track.trkDzError1[j])<3)
+             && (fabs(c_FullTrackTrigger_Track20->track.trkDxy1[j]/c_FullTrackTrigger_Track20->track.trkDxyError1[j])<3)
+             && (c_FullTrackTrigger_Track20->track.trkPtError[j]/c_FullTrackTrigger_Track20->track.trkPt[j]<0.1)
            ))
             continue;            
-           if(c_FullTrackTrigger_Track12->track.trkPt[j]>14.)
-              FullTrack12_trackAbove14 = true; 
-           if(c_FullTrackTrigger_Track12->track.trkPt[j]>22.)
-              FullTrack12_trackAbove22 = true;
-           if(c_FullTrackTrigger_Track12->track.trkPt[j]>32.)
-              FullTrack12_trackAbove32 = true;
+           if(c_FullTrackTrigger_Track20->track.trkPt[j]>22.)
+              FullTrack20_trackAbove22 = true; 
+           if(c_FullTrackTrigger_Track20->track.trkPt[j]>32.)
+              FullTrack20_trackAbove32 = true;
       }
 
 
       //Tracks
-      for(int j=0;j<c_FullTrackTrigger_Track12->track.nTrk;j++) {
-         if(!((c_FullTrackTrigger_Track12->track.trkPt[j]>0.2) 
-             && (c_FullTrackTrigger_Track12->track.trkEta[j]<0.535)
-             && (c_FullTrackTrigger_Track12->track.trkEta[j]>-1.465)
-             && (c_FullTrackTrigger_Track12->track.highPurity[j])
-             && (fabs(c_FullTrackTrigger_Track12->track.trkDz1[j]/c_FullTrackTrigger_Track12->track.trkDzError1[j])<3)
-             && (fabs(c_FullTrackTrigger_Track12->track.trkDxy1[j]/c_FullTrackTrigger_Track12->track.trkDxyError1[j])<3)
-             && (c_FullTrackTrigger_Track12->track.trkPtError[j]/c_FullTrackTrigger_Track12->track.trkPt[j]<0.1)
+      for(int j=0;j<c_FullTrackTrigger_Track20->track.nTrk;j++) {
+         if(!((c_FullTrackTrigger_Track20->track.trkPt[j]>0.2) 
+             && (c_FullTrackTrigger_Track20->track.trkEta[j]<0.535)
+             && (c_FullTrackTrigger_Track20->track.trkEta[j]>-1.465)
+             && (c_FullTrackTrigger_Track20->track.highPurity[j])
+             && (fabs(c_FullTrackTrigger_Track20->track.trkDz1[j]/c_FullTrackTrigger_Track20->track.trkDzError1[j])<3)
+             && (fabs(c_FullTrackTrigger_Track20->track.trkDxy1[j]/c_FullTrackTrigger_Track20->track.trkDxyError1[j])<3)
+             && (c_FullTrackTrigger_Track20->track.trkPtError[j]/c_FullTrackTrigger_Track20->track.trkPt[j]<0.1)
            ))
             continue;            
 
@@ -178,35 +175,35 @@ void CombineSpectra_FullTrackTrigger_Track12()
          if(data.leadingJetPt==-1) //for corrections
             data.leadingJetPt=10.;
          double trkWeight = 1.;
-         trkWeight = corr.getWeight(c_FullTrackTrigger_Track12->track.trkPt[j],c_FullTrackTrigger_Track12->track.trkEta[j],data.leadingJetPt);
+         trkWeight = corr.getWeight(c_FullTrackTrigger_Track20->track.trkPt[j],c_FullTrackTrigger_Track20->track.trkEta[j],data.leadingJetPt);
 
          //Trigger
          //v1 version of the trigger is not stored in HLTAnalysis, rely on skimming (so don't require HLT path here)
-         hPartPt_FullTrack12_trkCorr->Fill(c_FullTrackTrigger_Track12->track.trkPt[j],trkWeight);
-         hPartPt_FullTrack12_trkCorr_trigCorr->Fill(c_FullTrackTrigger_Track12->track.trkPt[j],trkWeight*evtWeight);
-         hPartPt_FullTrack12_trkCorr_smallerBins->Fill(c_FullTrackTrigger_Track12->track.trkPt[j],trkWeight);
-         hPartPt_FullTrack12_trkCorr_trigCorr_smallerBins->Fill(c_FullTrackTrigger_Track12->track.trkPt[j],trkWeight*evtWeight);
+         hPartPt_FullTrack20_trkCorr->Fill(c_FullTrackTrigger_Track20->track.trkPt[j],trkWeight);
+         hPartPt_FullTrack20_trkCorr_trigCorr->Fill(c_FullTrackTrigger_Track20->track.trkPt[j],trkWeight*evtWeight);
+         hPartPt_FullTrack20_trkCorr_smallerBins->Fill(c_FullTrackTrigger_Track20->track.trkPt[j],trkWeight);
+         hPartPt_FullTrack20_trkCorr_trigCorr_smallerBins->Fill(c_FullTrackTrigger_Track20->track.trkPt[j],trkWeight*evtWeight);
 
          //Spectra combination
-         if(FullTrack12_trackAbove14 && !FullTrack12_trackAbove22) {
-            hPartPt_FullTrack12_14_22_trkCorr_trigCorr->Fill(c_FullTrackTrigger_Track12->track.trkPt[j],trkWeight*evtWeight);
+         if(FullTrack20_trackAbove22 && !FullTrack20_trackAbove32) {
+            hPartPt_FullTrack20_22_32_trkCorr_trigCorr->Fill(c_FullTrackTrigger_Track20->track.trkPt[j],trkWeight*evtWeight);
          }
       } //Tracks end
  
       // event number
-      if(FullTrack12_trackAbove14 && !FullTrack12_trackAbove22)
-         numev_FullTrack12_14_22_trigCorr += evtWeight;
-      if(FullTrack12_trackAbove22 && !FullTrack12_trackAbove32)
-         numev_FullTrack12_22_32_trigCorr += evtWeight;
+      if(FullTrack20_trackAbove22 && !FullTrack20_trackAbove32)
+         numev_FullTrack20_22_32_trigCorr += evtWeight;
+      if(FullTrack20_trackAbove32)
+         numev_FullTrack20_32_X_trigCorr += evtWeight;
    }//event
 
-   hNumEv_FullTrack12_14_22_trigCorr->SetBinContent(1,numev_FullTrack12_14_22_trigCorr);
-   hNumEv_FullTrack12_22_32_trigCorr->SetBinContent(1,numev_FullTrack12_22_32_trigCorr);
-   normalizeByBinWidth(hPartPt_FullTrack12_trkCorr);
-   normalizeByBinWidth(hPartPt_FullTrack12_trkCorr_trigCorr);
-   normalizeByBinWidth(hPartPt_FullTrack12_trkCorr_smallerBins);
-   normalizeByBinWidth(hPartPt_FullTrack12_trkCorr_trigCorr_smallerBins);
-   normalizeByBinWidth(hPartPt_FullTrack12_14_22_trkCorr_trigCorr);
+   hNumEv_FullTrack20_22_32_trigCorr->SetBinContent(1,numev_FullTrack20_22_32_trigCorr);
+   hNumEv_FullTrack20_32_X_trigCorr->SetBinContent(1,numev_FullTrack20_32_X_trigCorr);
+   normalizeByBinWidth(hPartPt_FullTrack20_trkCorr);
+   normalizeByBinWidth(hPartPt_FullTrack20_trkCorr_trigCorr);
+   normalizeByBinWidth(hPartPt_FullTrack20_trkCorr_smallerBins);
+   normalizeByBinWidth(hPartPt_FullTrack20_trkCorr_trigCorr_smallerBins);
+   normalizeByBinWidth(hPartPt_FullTrack20_22_32_trkCorr_trigCorr);
 /*
    TCanvas *c1 = new TCanvas("c1","c1");
    c1->SetLogy();
@@ -302,13 +299,13 @@ void CombineSpectra_FullTrackTrigger_Track12()
    }
 */
    f_output->cd();
-   hPartPt_FullTrack12_trkCorr->Write();
-   hPartPt_FullTrack12_trkCorr_trigCorr->Write();
-   hPartPt_FullTrack12_trkCorr_smallerBins->Write();
-   hPartPt_FullTrack12_trkCorr_trigCorr_smallerBins->Write();
-   hPartPt_FullTrack12_14_22_trkCorr_trigCorr->Write();
-   hNumEv_FullTrack12_14_22_trigCorr->Write();
-   hNumEv_FullTrack12_22_32_trigCorr->Write();
+   hPartPt_FullTrack20_trkCorr->Write();
+   hPartPt_FullTrack20_trkCorr_trigCorr->Write();
+   hPartPt_FullTrack20_trkCorr_smallerBins->Write();
+   hPartPt_FullTrack20_trkCorr_trigCorr_smallerBins->Write();
+   hPartPt_FullTrack20_22_32_trkCorr_trigCorr->Write();
+   hNumEv_FullTrack20_22_32_trigCorr->Write();
+   hNumEv_FullTrack20_32_X_trigCorr->Write();
    f_output->Close();
 }
 

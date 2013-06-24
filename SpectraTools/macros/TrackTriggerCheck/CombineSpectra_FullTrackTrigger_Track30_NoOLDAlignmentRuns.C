@@ -14,7 +14,7 @@ TH1D* divideHistosDiffBins(TH1D* h_Num, TH1D* h_Den);
 void normalizeByBinWidth(TH1D *histo);
 //------------------------
 
-void CombineSpectra_FullTrackTrigger_Track30_Track50()
+void CombineSpectra_FullTrackTrigger_Track30_NoOLDAlignmentRuns()
 {
    //Plan: trigger efficiencies (up to a plateau): Not sure though if this would work
    // Jet40: from MB
@@ -29,13 +29,13 @@ void CombineSpectra_FullTrackTrigger_Track30_Track50()
    gStyle->SetPadRightMargin(0.16);
 
    bool doSave = false;
-   TFile * f_output = new TFile("CombineSpectra_FullTrackTrigger_Track30_Track50.root","recreate");
+   TFile * f_output = new TFile("CombineSpectra_FullTrackTrigger_Track30_NoOLDAlignmentRuns.root","recreate");
 
    TrackCorrector corr("../trackCorrections_HIN12017v1_HijingCombined.root");
    corr.load("trkCorr_HIN12017");
 
    // Define the input file and HiForest
-   char *infName_FullTrackTrigger = "root://eoscms//eos/cms/store/caf/user/yjlee/pPb2013/promptReco/PA2013_HiForest_PromptReco_highPtTrack_JSonPPb_forestv78.root";
+   char *infName_FullTrackTrigger = "root://eoscms//eos/cms/store/caf/user/yjlee/pPb2013/promptReco/PA2013_HiForest_PromptReco_highPtTrack30_JSonPPb_forestv84.root";
    HiForest *c_FullTrackTrigger = new HiForest(infName_FullTrackTrigger,"",cPPb);
 //   c_FullTrackTrigger->doTrackCorrections=1;
 //   c_FullTrackTrigger->InitTree();
@@ -63,8 +63,8 @@ void CombineSpectra_FullTrackTrigger_Track30_Track50()
    TH1D * hPartPt_FullTrack30_trkCorr_trigCorr = new TH1D("hPartPt_FullTrack30_trkCorr_trigCorr","hPartPt_FullTrack30_trkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
    TH1D * hPartPt_FullTrack30_trkCorr_smallerBins = new TH1D("hPartPt_FullTrack30_trkCorr_smallerBins","hPartPt_FullTrack30_trkCorr_smallerBins",ptBins.size()-1,&ptBins[0]);
    TH1D * hPartPt_FullTrack30_trkCorr_trigCorr_smallerBins = new TH1D("hPartPt_FullTrack30_trkCorr_trigCorr_smallerBins","hPartPt_FullTrack30_trkCorr_trigCorr_smallerBins",ptBins.size()-1,&ptBins[0]);
-   TH1D * hPartPt_FullTrack50_trkCorr = new TH1D("hPartPt_FullTrack50_trkCorr","hPartPt_FullTrack50_trkCorr",ptBins.size()-1,&ptBins[0]);
-   TH1D * hPartPt_FullTrack50_trkCorr_trigCorr = new TH1D("hPartPt_FullTrack50_trkCorr_trigCorr","hPartPt_FullTrack50_trkCorr_trigCorr",ptBins.size()-1,&ptBins[0]);
+//   TH1D * hPartPt_FullTrack50_trkCorr = new TH1D("hPartPt_FullTrack50_trkCorr","hPartPt_FullTrack50_trkCorr",ptBins.size()-1,&ptBins[0]);
+//   TH1D * hPartPt_FullTrack50_trkCorr_trigCorr = new TH1D("hPartPt_FullTrack50_trkCorr_trigCorr","hPartPt_FullTrack50_trkCorr_trigCorr",ptBins.size()-1,&ptBins[0]);
 
    //For spectra combination
    TH1D * hPartPt_FullTrack30_SpectComb_trkCorr_trigCorr = new TH1D("hPartPt_FullTrack30_SpectComb_trkCorr_trigCorr","hPartPt_FullTrack30_SpectCombt_rkCorr_trigCorr",NumOfPtBins_part-1,&ptBins_part[0]);
@@ -75,8 +75,8 @@ void CombineSpectra_FullTrackTrigger_Track30_Track50()
    hPartPt_FullTrack30_trkCorr_trigCorr->Sumw2();
    hPartPt_FullTrack30_trkCorr_smallerBins->Sumw2();
    hPartPt_FullTrack30_trkCorr_trigCorr_smallerBins->Sumw2();
-   hPartPt_FullTrack50_trkCorr->Sumw2();
-   hPartPt_FullTrack50_trkCorr_trigCorr->Sumw2();
+//   hPartPt_FullTrack50_trkCorr->Sumw2();
+//   hPartPt_FullTrack50_trkCorr_trigCorr->Sumw2();
 
    hPartPt_FullTrack30_SpectComb_trkCorr_trigCorr->Sumw2();
 
@@ -94,7 +94,7 @@ void CombineSpectra_FullTrackTrigger_Track30_Track50()
 
       if (i % 2000 == 0) cout <<i<<" / "<<c_FullTrackTrigger->GetEntries()<<endl;
 
-      if(c_FullTrackTrigger->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
+      if(c_FullTrackTrigger->evt.run<210676 || c_FullTrackTrigger->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
          continue;
 
       //event selection
@@ -138,7 +138,7 @@ void CombineSpectra_FullTrackTrigger_Track30_Track50()
       }
       // Don't analyze 0 multiplicity events; correction added later
       if(trackMult==0)
-        { std::cerr<<" FullTrack30 || FullTrack50, but 0 multiplicity!!" << std::endl; continue; }
+        { std::cerr<<" FullTrack30 but 0 multiplicity!!" << std::endl; continue; }
       double evtWeight = 1.;
       evtWeight = corr.getEventWeight(trackMult);
 
@@ -177,25 +177,25 @@ void CombineSpectra_FullTrackTrigger_Track30_Track50()
          trkWeight = corr.getWeight(c_FullTrackTrigger->track.trkPt[j],c_FullTrackTrigger->track.trkEta[j],data.leadingJetPt);
 
          //Trigger
-         if(c_FullTrackTrigger->hlt.HLT_PAFullTrack30_v1 || c_FullTrackTrigger->hlt.HLT_PAFullTrack30_v2) {
+//         if(c_FullTrackTrigger->hlt.HLT_PAFullTrack30_v1 || c_FullTrackTrigger->hlt.HLT_PAFullTrack30_v2) {
             hPartPt_FullTrack30_trkCorr->Fill(c_FullTrackTrigger->track.trkPt[j],trkWeight);
             hPartPt_FullTrack30_trkCorr_trigCorr->Fill(c_FullTrackTrigger->track.trkPt[j],trkWeight*evtWeight);
             hPartPt_FullTrack30_trkCorr_smallerBins->Fill(c_FullTrackTrigger->track.trkPt[j],trkWeight);
             hPartPt_FullTrack30_trkCorr_trigCorr_smallerBins->Fill(c_FullTrackTrigger->track.trkPt[j],trkWeight*evtWeight);
-         }
-         if(c_FullTrackTrigger->hlt.HLT_PAFullTrack50_v1 || c_FullTrackTrigger->hlt.HLT_PAFullTrack50_v2) {
-            hPartPt_FullTrack50_trkCorr->Fill(c_FullTrackTrigger->track.trkPt[j],trkWeight);
-            hPartPt_FullTrack50_trkCorr_trigCorr->Fill(c_FullTrackTrigger->track.trkPt[j],trkWeight*evtWeight);
-         }
+//         }
+//         if(c_FullTrackTrigger->hlt.HLT_PAFullTrack50_v1 || c_FullTrackTrigger->hlt.HLT_PAFullTrack50_v2) {
+//            hPartPt_FullTrack50_trkCorr->Fill(c_FullTrackTrigger->track.trkPt[j],trkWeight);
+//            hPartPt_FullTrack50_trkCorr_trigCorr->Fill(c_FullTrackTrigger->track.trkPt[j],trkWeight*evtWeight);
+//         }
 
          //Spectra combination
-         if(fullTrack30_trackAbove32 && (c_FullTrackTrigger->hlt.HLT_PAFullTrack30_v1 || c_FullTrackTrigger->hlt.HLT_PAFullTrack30_v2)) {
+         if(fullTrack30_trackAbove32) {
             hPartPt_FullTrack30_SpectComb_trkCorr_trigCorr->Fill(c_FullTrackTrigger->track.trkPt[j],trkWeight*evtWeight);
          }
       } //Tracks end
  
       // event number
-      if(fullTrack30_trackAbove32 && (c_FullTrackTrigger->hlt.HLT_PAFullTrack30_v1 || c_FullTrackTrigger->hlt.HLT_PAFullTrack30_v2))
+      if(fullTrack30_trackAbove32)
          numev_FullTrack30_32_X_trigCorr += evtWeight;
 
    }//event
@@ -207,8 +207,8 @@ void CombineSpectra_FullTrackTrigger_Track30_Track50()
    normalizeByBinWidth(hPartPt_FullTrack30_trkCorr_smallerBins);
    normalizeByBinWidth(hPartPt_FullTrack30_trkCorr_trigCorr_smallerBins);
    normalizeByBinWidth(hPartPt_FullTrack30_SpectComb_trkCorr_trigCorr);
-   normalizeByBinWidth(hPartPt_FullTrack50_trkCorr);
-   normalizeByBinWidth(hPartPt_FullTrack50_trkCorr_trigCorr);
+//   normalizeByBinWidth(hPartPt_FullTrack50_trkCorr);
+//   normalizeByBinWidth(hPartPt_FullTrack50_trkCorr_trigCorr);
 /*
    TCanvas *c1 = new TCanvas("c1","c1");
    c1->SetLogy();
@@ -309,8 +309,8 @@ void CombineSpectra_FullTrackTrigger_Track30_Track50()
    hPartPt_FullTrack30_trkCorr_smallerBins->Write();
    hPartPt_FullTrack30_trkCorr_trigCorr_smallerBins->Write();
    hPartPt_FullTrack30_SpectComb_trkCorr_trigCorr->Write();
-   hPartPt_FullTrack50_trkCorr->Write();
-   hPartPt_FullTrack50_trkCorr_trigCorr->Write();
+//   hPartPt_FullTrack50_trkCorr->Write();
+//   hPartPt_FullTrack50_trkCorr_trigCorr->Write();
    hNumEv_FullTrack30_32_X_trigCorr->Write();
 //   hNumEv_FullTrack50_trigCorr->Write();
    f_output->Close();

@@ -15,7 +15,7 @@ void normalizeByBinWidth(TH1D *histo);
 void fillHistograms(HiForest * c_minbias, JetData data, int & numev_minbias, float & numev_minbias_trigCorr, int & numev_0_14_minbias, float & numev_0_14_minbias_trigCorr, int & numev_14_22_minbias, float & numev_14_22_minbias_trigCorr, int & numev_22_32_minbias, float & numev_22_32_minbias_trigCorr, int & numev_32_X_minbias, TH1D *hPartPt_minbias, TH1D *hPartPt_minbias_trkCorr, TH1D *hPartPt_minbias_trkCorr_trigCorr, TH1D *hPartPt_minbias_trkCorr_trigCorr_smallerBins, TH1D *hPartPt_0_14_minbias, TH1D *hPartPt_0_14_minbias_trkCorr, TH1D *hPartPt_0_14_minbias_trkCorr_trigCorr, TH1D*hRecMultiplicity);
 //------------------------
 
-void CombineSpectra_minbias()
+void CombineSpectra_minbias_NoOLDAlignmentRuns()
 {
 
    gROOT->Reset();
@@ -26,7 +26,7 @@ void CombineSpectra_minbias()
    gStyle->SetPadRightMargin(0.16);
 
    bool doSave = true;
-   TFile * f_output = new TFile("CombineSpectra_minbias.root","recreate");
+   TFile * f_output = new TFile("CombineSpectra_minbias_NoOLDAlignmentRuns.root","recreate");
 
    // Define the input file and HiForest
    char *infName_1 = "root://eoscms//eos/cms/store/group/phys_heavyions/kjung/MinBiasUPCForest_v71/MergedForest_withCones_MinBiasUPC_v71_1.root";
@@ -199,7 +199,7 @@ void fillHistograms(HiForest * c_minbias, JetData data, int & numev_minbias, flo
 
       if (i % 2000 == 0) cout <<i<<" / "<<c_minbias->GetEntries()<<endl;
 
-      if(c_minbias->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
+      if(c_minbias->evt.run<210676 || c_minbias->evt.run>211256) //211256: last pPb run (Pb goes to +eta)
          continue;
 
       //event selection
