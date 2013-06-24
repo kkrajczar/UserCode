@@ -10,7 +10,7 @@
 void normalizeByBinWidth(TH1D *histo);
 //------------------------
 
-void PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns()
+void PtSpectraCombination_StagedNormalization_EtaCM_P08_P13()
 {
    gROOT->Reset();
    gROOT->ProcessLine(".x rootlogonChristof.C");
@@ -22,18 +22,18 @@ void PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns()
 
    bool doSave = true;
 
-   TFile *f_minbias = new TFile("CombineSpectra_minbias_NoOLDAlignmentRuns.root");
-   TFile *f_FullTrack_12 = new TFile("CombineSpectra_FullTrackTrigger_Track12_NoOLDAlignmentRuns.root");
-   TFile *f_FullTrack_20 = new TFile("CombineSpectra_FullTrackTrigger_Track20_NoOLDAlignmentRuns.root");
-   TFile *f_FullTrack_30 = new TFile("CombineSpectra_FullTrackTrigger_Track30_NoOLDAlignmentRuns.root");
-   TFile *f_out = new TFile("PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns_TrackTrigger.root","recreate");
+   TFile *f_minbias = new TFile("CombineSpectra_minbias_EtaCM_P08_P13.root");
+   TFile *f_FullTrack_12 = new TFile("CombineSpectra_FullTrackTrigger_Track12_EtaCM_P08_P13.root");
+   TFile *f_FullTrack_20 = new TFile("CombineSpectra_FullTrackTrigger_Track20_EtaCM_P08_P13.root");
+   TFile *f_FullTrack_30_50 = new TFile("CombineSpectra_FullTrackTrigger_Track30_Track50_EtaCM_P08_P13.root");
+   TFile *f_out = new TFile("PtSpectraCombination_StagedNormalization_EtaCM_P08_P13_TrackTrigger.root","recreate");
 
    //Get spectra
    TH1D* hPartPt_minbias_corrected = (TH1D*)f_minbias->Get("hPartPt_minbias_trkCorr_trigCorr");
    TH1D* hPartPt_0_14_minbias_corrected = (TH1D*)f_minbias->Get("hPartPt_0_14_minbias_trkCorr_trigCorr");
    TH1D* hPartPt_14_22_FullTrack12_corrected = (TH1D*)f_FullTrack_12->Get("hPartPt_FullTrack12_14_22_trkCorr_trigCorr");
    TH1D* hPartPt_22_32_FullTrack20_corrected = (TH1D*)f_FullTrack_20->Get("hPartPt_FullTrack20_22_32_trkCorr_trigCorr");
-   TH1D* hPartPt_32_X_FullTrack30_corrected = (TH1D*)f_FullTrack_30->Get("hPartPt_FullTrack30_SpectComb_trkCorr_trigCorr");
+   TH1D* hPartPt_32_X_FullTrack30_corrected = (TH1D*)f_FullTrack_30_50->Get("hPartPt_FullTrack30_SpectComb_trkCorr_trigCorr");
 
    hPartPt_0_14_minbias_corrected->SetBinContent(hPartPt_0_14_minbias_corrected->FindBin(103.24),0);//Remove muon event
    hPartPt_0_14_minbias_corrected->SetBinError(hPartPt_0_14_minbias_corrected->FindBin(103.24),0);//Remove muon event
@@ -48,7 +48,7 @@ void PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns()
    TH1D* hNumEv_22_32_FullTrack12 = (TH1D*)f_FullTrack_12->Get("hNumEv_FullTrack12_22_32_trigCorr");
    TH1D* hNumEv_22_32_FullTrack20 = (TH1D*)f_FullTrack_20->Get("hNumEv_FullTrack20_22_32_trigCorr");
    TH1D* hNumEv_32_X_FullTrack20 = (TH1D*)f_FullTrack_20->Get("hNumEv_FullTrack20_32_X_trigCorr");
-   TH1D* hNumEv_32_X_FullTrack30 = (TH1D*)f_FullTrack_30->Get("hNumEv_FullTrack30_32_X_trigCorr");
+   TH1D* hNumEv_32_X_FullTrack30 = (TH1D*)f_FullTrack_30_50->Get("hNumEv_FullTrack30_32_X_trigCorr");
 
    float numev_minbias = hNumEv_minbias->GetBinContent(1);
    float numev_0_14_minbias = hNumEv_0_14_minbias->GetBinContent(1);
@@ -69,14 +69,10 @@ void PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns()
    std::cerr<<"   32-X  T20: " << numev_32_X_FullTrack20 << std::endl;
    std::cerr<<"   32-X  T30: " << numev_32_X_FullTrack30 << std::endl;
 
-   std::cerr<<" numev_minbias/numev_0_14_minbias: " << 100.*numev_minbias/numev_0_14_minbias << "%" << std::endl;
-   std::cerr<<" numev_14_22_minbias/numev_0_14_minbias: " << 100.*numev_14_22_minbias/numev_0_14_minbias << "%" << std::endl;
-   std::cerr<<" numev_14_22_FullTrack12/numev_22_32_FullTrack12: " << 100.*numev_14_22_FullTrack12/numev_22_32_FullTrack12 << std::endl;
-
    //Prepare the individual normalizations
    float norm_0_14_minbias = numev_minbias;
    float norm_14_22_FullTrack12 = numev_14_22_FullTrack12*numev_minbias/numev_14_22_minbias;
-//   float norm_14_22_FullTrack12 = numev_14_22_FullTrack12*2466.480;
+//   float norm_14_22_FullTrack12 = numev_14_22_FullTrack12*11165.040;
    float norm_22_32_FullTrack20 = norm_14_22_FullTrack12*numev_22_32_FullTrack20/numev_22_32_FullTrack12;
    float norm_32_X_FullTrack30 = norm_22_32_FullTrack20*numev_32_X_FullTrack30/numev_32_X_FullTrack20;
 
@@ -154,9 +150,9 @@ void PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns()
    leg1->SetBorderSize(0);
    leg1->Draw();
    if(doSave) {
-      c1->SaveAs("Figs/PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns_c1.gif");
-      c1->SaveAs("Figs/PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns_c1.eps");
-      c1->SaveAs("Figs/PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns_c1.C");
+      c1->SaveAs("Figs/PtSpectraCombination_StagedNormalization_EtaCM_P08_P13_c1.gif");
+      c1->SaveAs("Figs/PtSpectraCombination_StagedNormalization_EtaCM_P08_P13_c1.eps");
+      c1->SaveAs("Figs/PtSpectraCombination_StagedNormalization_EtaCM_P08_P13_c1.C");
    }
 
 
@@ -187,9 +183,9 @@ void PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns()
    hSumPartPt_copy2->SetMaximum(1.05);
    hSumPartPt_copy2->Draw();
    if(doSave) {
-      c2->SaveAs("Figs/PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns_c2.gif");
-      c2->SaveAs("Figs/PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns_c2.eps");
-      c2->SaveAs("Figs/PtSpectraCombination_StagedNormalization_NoOLDAlignmentRuns_c2.C");
+      c2->SaveAs("Figs/PtSpectraCombination_StagedNormalization_EtaCM_P08_P13_c2.gif");
+      c2->SaveAs("Figs/PtSpectraCombination_StagedNormalization_EtaCM_P08_P13_c2.eps");
+      c2->SaveAs("Figs/PtSpectraCombination_StagedNormalization_EtaCM_P08_P13_c2.C");
    }
 
 /*
