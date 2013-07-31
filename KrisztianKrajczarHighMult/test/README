@@ -1,0 +1,107 @@
+# Analyzer to print out particle properties into an: - ASCII file
+#                                                    - ROOT file
+
+# Simulated particles: - only consider primary particles
+#                      - particles with |eta|>2.5 and pT<0.1 are excluded
+#                      - neutral particles are excluded
+# Reconstucted particles: - reconstruction algorithm: interative tracking
+#                         - track quality: loose
+#                         - vertex finder: divisive
+#                         - only consider primary particles.
+#
+# CMSSW release: CMSSW_3_8_3
+
+
+
+#########
+#
+# MANUAL
+#
+#########
+
+# 0. Python files:
+# ----------------
+
+   # for simulation: run_analysis_SIM.py
+   # for data: run_analysis_DATA.py
+
+
+# 1. Configurable Parameters:
+# ---------------------------
+
+   # Parameters should be changed in run_analysis_XXXX.py
+   # Examples below are given for run_analysis_DATA.py
+   # - - - - - - - - - - - - - - - - - - - - - - - -
+
+   ##############################
+   # Number of events to process:
+   ##############################
+   #   ~line 34: input = cms.untracked.int32(1000)
+   #   This means that 1000 events will be processed.
+
+   ################
+   # Event content:
+   ################
+   #   ~line 42: hasSIMInfo = cms.bool(False)
+   #   The input files don't contain simulated information
+
+   #############
+   # ASCII file:
+   #############
+   #   ~line 43: writeASCII = cms.bool(False)
+   #   No txt files will be made (only ROOT files are created)
+
+   ###################
+   # Multiplicity cut:
+   ###################
+   #   ~line 44: multiplicityCut = cms.int32(1)
+   #   Events with less than 1 tracks (~empty events) are rejected.
+
+   ##########################
+   # Name of the output file:
+   ##########################
+   #   ~line 45: fileName_ASCII = cms.string('particles_DATA.txt')
+   #   This sets the filename of the ASCII file to particles_DATA.txt.
+   #
+   #   ~line 46: fileName_ROOT = cms.string('particles_DATA.root')
+   #   This sets the filename of the ROOT file to particles_DATA.root.
+
+
+# 2. Data analysis
+# -----------------------
+   
+   # set the environment:
+   #   cmsenv
+
+   # run the analyzer as follows:
+   #   cmsRun run_analyzer_DATA.py
+
+   # plot some distributions from the output ROOT file
+   #   root.exe plotFromFile.C
+
+# 3. Content of the output ASCII file
+# -----------------------------
+
+   # Event header: - number of event
+   #               - value of the multiplicity cut  
+   #               - number of 'proper' reconstructed tracks
+   #               - number of 'proper' simulated particles
+
+   # simulated tracks: number, pdgId, eta, pt, phi, whether it is reconstructed
+   # reconstructed tracks: number, eta, pt, phi, whether it is real or fake
+
+
+# 4. Content of the output ROOT file
+# -----------------------------
+
+   # Two NTuples: - nRecTracks: track level informations (eta, pt, etc. for primary tracks)
+   #              - nEvent: event level informations (run number, number of tracks, etc.)
+
+
+# 5. Useful links
+# ---------------
+
+   # Workbook: https://twiki.cern.ch/twiki/bin/view/CMS/WorkBook
+   # Cross referencer: http://cmslxr.fnal.gov/lxr/source/?v=CMSSW_3_8_3
+   # DBS: https://cmsweb.cern.ch/dbs_discovery/
+   # Frontier conditions: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions

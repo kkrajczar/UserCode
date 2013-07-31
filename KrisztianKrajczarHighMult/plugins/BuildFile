@@ -1,0 +1,5 @@
+<use name=UserCode/KrisztianKrajczarHighMult>
+<library file="*.cc" name=UserCodeKrisztianKrajczarHighMultPlugins>
+  <flags EDM_PLUGIN=1>
+</library>
+
