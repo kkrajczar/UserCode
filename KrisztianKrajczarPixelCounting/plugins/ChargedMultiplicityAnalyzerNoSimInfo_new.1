@@ -1,0 +1,2287 @@
+// $Id: ChargedMultiplicityAnalyzerNoSimInfo_new.1,v 1.1 2009/11/27 13:32:39 krajczar Exp $
+// TRICK: DataContainer in the recHit loops
+
+#include "ChargedMultiplicityAnalyzerNoSimInfo_new.h"
+
+/*****************************************************************************/
+ChargedMultiplicityAnalyzerNoSimInfo_new::ChargedMultiplicityAnalyzerNoSimInfo_new(const edm::ParameterSet& pset)
+{
+//  trackCollectionLabel = pset.getParameter<string>("trackCollection");
+  resultFileLabel      = pset.getParameter<string>("file");
+  simulateTriggers_    = pset.getParameter<bool>("simulateTriggers");
+
+  src_ = pset.getParameter<edm::InputTag>("src");
+}
+
+/*****************************************************************************/
+ChargedMultiplicityAnalyzerNoSimInfo_new::~ChargedMultiplicityAnalyzerNoSimInfo_new()
+{
+}
+
+/*****************************************************************************/
+void ChargedMultiplicityAnalyzerNoSimInfo_new::beginJob(const edm::EventSetup& es)
+{
+  // Get tracker geometry
+
+  // Root
+  resultFile = new TFile(resultFileLabel.c_str(),"recreate","",6);
+  TDirectory::TContext context(resultFile);
+
+  verticesInfo = new TNtuple("verticesInfo","verticesInfo",
+     "numrvertices:numsvertices:numrectracks:procID");
+  multi = new TNtuple("multi","multi", "eta:eloss:type");
+  looper = new TNtuple("looper","looper","Dtof");
+
+  //multiplicity
+  multProp = new TNtuple("multProp","multProp",
+     "rver_z:failedSizeP5:failedSizeP4:failedSizeP3:failedSizeP2:failedSizeP1:failedSizeN1:failedSizeN2:failedSizeN3:failedSizeN4:failedSizeN5:M:isTrigger:trackTrigger:track5Trigger:track10Trigger:lessThan9Trigger:atLeast9Trigger:clusterTriggAtLeast9:clusterTriggLessThan9:numVtx:numEv:H_recMC_etaP5:H_recMC_etaP4:H_recMC_etaP3:H_recMC_etaP2:H_recMC_etaP1:H_recMC_etaN1:H_recMC_etaN2:H_recMC_etaN3:H_recMC_etaN4:H_recMC_etaN5:clustSizeY_etaP6:clustSizeY_etaP5:clustSizeY_etaP4:clustSizeY_etaP3:clustSizeY_etaP2:clustSizeY_etaP1:clustSizeY_etaN1:clustSizeY_etaN2:clustSizeY_etaN3:clustSizeY_etaN4:clustSizeY_etaN5:clustSizeY_etaN6:cluster_counter");
+//     "EbE:passedSize:failedSize:failedSizeP5:failedSizeP4:failedSizeP3:failedSizeP2:failedSizeP1:failedSizeN1:failedSizeN2:failedSizeN3:failedSizeN4:failedSizeN5:M:isTrigger:trackTrigger:track5Trigger:track10Trigger:lessThan9Trigger:atLeast9Trigger:clusterTriggAtLeast9:clusterTriggLessThan9:minBias:numVtx:numEv:procID:T_truth:T_truth_etaP6:T_truth_etaP5:T_truth_etaP4:T_truth_etaP3:T_truth_etaP2:T_truth_etaP1:T_truth_etaN1:T_truth_etaN2:T_truth_etaN3:T_truth_etaN4:T_truth_etaN5:T_truth_etaN6:T_truth_etaP6_eff:T_truth_etaP5_eff:T_truth_etaP4_eff:T_truth_etaP3_eff:T_truth_etaP2_eff:T_truth_etaP1_eff:T_truth_etaN1_eff:T_truth_etaN2_eff:T_truth_etaN3_eff:T_truth_etaN4_eff:T_truth_etaN5_eff:T_truth_etaN6_eff:H_recMCLC:H_recMC:H_recMC_etaP5:H_recMC_etaP4:H_recMC_etaP3:H_recMC_etaP2:H_recMC_etaP1:H_recMC_etaN1:H_recMC_etaN2:H_recMC_etaN3:H_recMC_etaN4:H_recMC_etaN5:clustSizeY_etaP6:clustSizeY_etaP5:clustSizeY_etaP4:clustSizeY_etaP3:clustSizeY_etaP2:clustSizeY_etaP1:clustSizeY_etaN1:clustSizeY_etaN2:clustSizeY_etaN3:clustSizeY_etaN4:clustSizeY_etaN5:clustSizeY_etaN6:cluster_counter");
+  nd_multProp = new TNtuple("nd_multProp","nd_multProp",
+     "rver_z:failedSizeP5:failedSizeP4:failedSizeP3:failedSizeP2:failedSizeP1:failedSizeN1:failedSizeN2:failedSizeN3:failedSizeN4:failedSizeN5:M:isTrigger:trackTrigger:track5Trigger:track10Trigger:lessThan9Trigger:atLeast9Trigger:clusterTriggAtLeast9:clusterTriggLessThan9:numVtx:numEv:H_recMC_etaP5:H_recMC_etaP4:H_recMC_etaP3:H_recMC_etaP2:H_recMC_etaP1:H_recMC_etaN1:H_recMC_etaN2:H_recMC_etaN3:H_recMC_etaN4:H_recMC_etaN5:clustSizeY_etaP6:clustSizeY_etaP5:clustSizeY_etaP4:clustSizeY_etaP3:clustSizeY_etaP2:clustSizeY_etaP1:clustSizeY_etaN1:clustSizeY_etaN2:clustSizeY_etaN3:clustSizeY_etaN4:clustSizeY_etaN5:clustSizeY_etaN6:cluster_counter");
+//     "EbE:passedSize:failedSize:failedSizeP5:failedSizeP4:failedSizeP3:failedSizeP2:failedSizeP1:failedSizeN1:failedSizeN2:failedSizeN3:failedSizeN4:failedSizeN5:M:isTrigger:trackTrigger:track5Trigger:track10Trigger:lessThan9Trigger:atLeast9Trigger:clusterTriggAtLeast9:clusterTriggLessThan9:minBias:numVtx:numEv:procID:T_truth:T_truth_etaP6:T_truth_etaP5:T_truth_etaP4:T_truth_etaP3:T_truth_etaP2:T_truth_etaP1:T_truth_etaN1:T_truth_etaN2:T_truth_etaN3:T_truth_etaN4:T_truth_etaN5:T_truth_etaN6:T_truth_etaP6_eff:T_truth_etaP5_eff:T_truth_etaP4_eff:T_truth_etaP3_eff:T_truth_etaP2_eff:T_truth_etaP1_eff:T_truth_etaN1_eff:T_truth_etaN2_eff:T_truth_etaN3_eff:T_truth_etaN4_eff:T_truth_etaN5_eff:T_truth_etaN6_eff:H_recMCLC:H_recMC:H_recMC_etaP5:H_recMC_etaP4:H_recMC_etaP3:H_recMC_etaP2:H_recMC_etaP1:H_recMC_etaN1:H_recMC_etaN2:H_recMC_etaN3:H_recMC_etaN4:H_recMC_etaN5:clustSizeY_etaP6:clustSizeY_etaP5:clustSizeY_etaP4:clustSizeY_etaP3:clustSizeY_etaP2:clustSizeY_etaP1:clustSizeY_etaN1:clustSizeY_etaN2:clustSizeY_etaN3:clustSizeY_etaN4:clustSizeY_etaN5:clustSizeY_etaN6:cluster_counter");
+  rd_multProp = new TNtuple("rd_multProp","rd_multProp",
+     "rver_z:failedSizeP5:failedSizeP4:failedSizeP3:failedSizeP2:failedSizeP1:failedSizeN1:failedSizeN2:failedSizeN3:failedSizeN4:failedSizeN5:M:isTrigger:trackTrigger:track5Trigger:track10Trigger:lessThan9Trigger:atLeast9Trigger:clusterTriggAtLeast9:clusterTriggLessThan9:numVtx:numEv:H_recMC_etaP5:H_recMC_etaP4:H_recMC_etaP3:H_recMC_etaP2:H_recMC_etaP1:H_recMC_etaN1:H_recMC_etaN2:H_recMC_etaN3:H_recMC_etaN4:H_recMC_etaN5:clustSizeY_etaP6:clustSizeY_etaP5:clustSizeY_etaP4:clustSizeY_etaP3:clustSizeY_etaP2:clustSizeY_etaP1:clustSizeY_etaN1:clustSizeY_etaN2:clustSizeY_etaN3:clustSizeY_etaN4:clustSizeY_etaN5:clustSizeY_etaN6:cluster_counter");
+//     "EbE:passedSize:failedSize:failedSizeP5:failedSizeP4:failedSizeP3:failedSizeP2:failedSizeP1:failedSizeN1:failedSizeN2:failedSizeN3:failedSizeN4:failedSizeN5:M:isTrigger:trackTrigger:track5Trigger:track10Trigger:lessThan9Trigger:atLeast9Trigger:clusterTriggAtLeast9:clusterTriggLessThan9:minBias:numVtx:numEv:procID:T_truth:T_truth_etaP6:T_truth_etaP5:T_truth_etaP4:T_truth_etaP3:T_truth_etaP2:T_truth_etaP1:T_truth_etaN1:T_truth_etaN2:T_truth_etaN3:T_truth_etaN4:T_truth_etaN5:T_truth_etaN6:T_truth_etaP6_eff:T_truth_etaP5_eff:T_truth_etaP4_eff:T_truth_etaP3_eff:T_truth_etaP2_eff:T_truth_etaP1_eff:T_truth_etaN1_eff:T_truth_etaN2_eff:T_truth_etaN3_eff:T_truth_etaN4_eff:T_truth_etaN5_eff:T_truth_etaN6_eff:H_recMCLC:H_recMC:H_recMC_etaP5:H_recMC_etaP4:H_recMC_etaP3:H_recMC_etaP2:H_recMC_etaP1:H_recMC_etaN1:H_recMC_etaN2:H_recMC_etaN3:H_recMC_etaN4:H_recMC_etaN5:clustSizeY_etaP6:clustSizeY_etaP5:clustSizeY_etaP4:clustSizeY_etaP3:clustSizeY_etaP2:clustSizeY_etaP1:clustSizeY_etaN1:clustSizeY_etaN2:clustSizeY_etaN3:clustSizeY_etaN4:clustSizeY_etaN5:clustSizeY_etaN6:cluster_counter");
+  multProp_looper = new TNtuple("multProp_looper","multProp_looper",
+      "rver_z:eta:eloss:M:numVtx:clustSizeY:cluster_counter");
+//      "eta:eloss:type:M:numVtx:clustSizeY:cluster_counter");
+  nd_multProp_looper = new TNtuple("nd_multProp_looper","nd_multProp_looper",
+      "rver_z:eta:eloss:M:numVtx:clustSizeY:cluster_counter");
+//      "eta:eloss:type:M:numVtx:clustSizeY:cluster_counter");
+  rd_multProp_looper = new TNtuple("rd_multProp_looper","rd_multProp_looper",
+      "rver_z:eta:eloss:M:numVtx:clustSizeY:cluster_counter");
+//      "eta:eloss:type:M:numVtx:clustSizeY:cluster_counter");
+  hPabsTof = new TNtuple("hPabsTof","hPabsTof",
+      "pabs:tof");
+  nd_hPabsTof = new TNtuple("nd_hPabsTof","nd_hPabsTof",
+      "pabs:tof");
+  rd_hPabsTof = new TNtuple("rd_hPabsTof","rd_hPabsTof",
+      "pabs:tof");
+  hLooperPt = new TH1D("hLooperPt","hLooperPt",100,0.,5.);
+  hPt = new TH1D("hPt","hPt",100,0.,5.);
+  hNonLooperPt = new TH1D("hNonLooperPt","hNonLooperPt",100,0.,5.);
+  hProba = new TH1D("hProba","hProba",10000,0.,1000.);
+  hJustLooper = new TNtuple("hJustLooper","hJustLooper","rver_z:eloss:eta:M:numVtx:clustSizeY:cluster_counter");
+  nd_hJustLooper = new TNtuple("nd_hJustLooper","nd_hJustLooper","rver_z:eloss:eta:M:numVtx:clustSizeY:cluster_counter");
+  rd_hJustLooper = new TNtuple("rd_hJustLooper","rd_hJustLooper","rver_z:eloss:eta:M:numVtx:clustSizeY:cluster_counter");
+  hLastTOF = new TH1D("hLastTOF","hLastTOF",200,0.,40.);
+
+  //check eta
+  NCheckEta = new TNtuple("NCheckEta","NCheckEta",
+     "adc:eta:eta_corr:above_eta:above_eta_corr");
+
+  //cluster vertices
+  nCLusterVertices = new TNtuple("nCLusterVertices","nCLusterVertices",
+     "numRecHits_l1:rver_z");
+  nClusterPrim = new TNtuple("nClusterPrim","nClusterPrim",
+     "eta_corr:sizeY");
+  nClusterAll = new TNtuple("nClusterAll","nClusterAll",
+     "eta_corr:sizeY");
+  nClusterUnused = new TNtuple("nClusterUnused","nClusterUnused",
+     "eta_corr:sizeY");
+  hCorrEtaSizeY = new TH2F("hCorrEtaSizeY","hCorrEtaSizeY",300,-3.,3.,20,0.,20.);
+  hCorrEtaADC = new TH2F("hCorrEtaADC","hCorrEtaADC",300,-3.,3.,125,0.,2500.);
+  hClusterZSizeY = new TH2F("hClusterZSizeY","hClusterZSizeY",600,-30.,30.,200,0.,20.);
+  ResPureClusterY = new TH1F("ResPureClusterY","ResPureClusterY",60,0.,30.);
+  ResSimRecClusterY = new TH1F("ResSimRecClusterY","ResSimRecClusterY",60,0.,30.);
+  ResElseSimRecClusterY = new TH1F("ResElseSimRecClusterY","ResElseSimRecClusterY",60,0.,30.);
+
+  //decay
+  NDecay = new TNtuple("NDecay","NDecay",
+     "decayCounter:num_weaks:decayHits_etaP6:decayHits_etaP5:decayHits_etaP4:decayHits_etaP3:decayHits_etaP2:decayHits_etaP1:decayHits_etaN1:decayHits_etaN2:decayHits_etaN3:decayHits_etaN4:decayHits_etaN5:decayHits_etaN6:cluster_counter");
+  nd_NDecay = new TNtuple("nd_NDecay","nd_NDecay",
+     "decayCounter:num_weaks:decayHits_etaP6:decayHits_etaP5:decayHits_etaP4:decayHits_etaP3:decayHits_etaP2:decayHits_etaP1:decayHits_etaN1:decayHits_etaN2:decayHits_etaN3:decayHits_etaN4:decayHits_etaN5:decayHits_etaN6:cluster_counter");
+  rd_NDecay = new TNtuple("rd_NDecay","rd_NDecay",
+     "decayCounter:num_weaks:decayHits_etaP6:decayHits_etaP5:decayHits_etaP4:decayHits_etaP3:decayHits_etaP2:decayHits_etaP1:decayHits_etaN1:decayHits_etaN2:decayHits_etaN3:decayHits_etaN4:decayHits_etaN5:decayHits_etaN6:cluster_counter");
+  NDecayInfo = new TNtuple("NDecayInfo","NDecayInfo","parentID:ID");
+
+  // interaction
+  NInter = new TNtuple("NInter","NInter",
+     "interHits_etaP6:interHits_etaP5:interHits_etaP4:interHits_etaP3:interHits_etaP2:interHits_etaP1:interHits_etaN1:interHits_etaN2:interHits_etaN3:interHits_etaN4:interHits_etaN5:interHits_etaN6:cluster_counter");
+  nd_NInter = new TNtuple("nd_NInter","nd_NInter",
+     "interHits_etaP6:interHits_etaP5:interHits_etaP4:interHits_etaP3:interHits_etaP2:interHits_etaP1:interHits_etaN1:interHits_etaN2:interHits_etaN3:interHits_etaN4:interHits_etaN5:interHits_etaN6:cluster_counter");
+  rd_NInter = new TNtuple("rd_NInter","rd_NInter",
+     "interHits_etaP6:interHits_etaP5:interHits_etaP4:interHits_etaP3:interHits_etaP2:interHits_etaP1:interHits_etaN1:interHits_etaN2:interHits_etaN3:interHits_etaN4:interHits_etaN5:interHits_etaN6:cluster_counter");
+
+  // below the cut
+  NBelow = new TNtuple("NBelow","NBelow",
+     "belowHits_etaP6:belowHits_etaP5:belowHits_etaP4:belowHits_etaP3:belowHits_etaP2:belowHits_etaP1:belowHits_etaN1:belowHits_etaN2:belowHits_etaN3:belowHits_etaN4:belowHits_etaN5:belowHits_etaN6:cluster_counter");
+  nd_NBelow = new TNtuple("nd_NBelow","nd_NBelow",
+     "belowHits_etaP6:belowHits_etaP5:belowHits_etaP4:belowHits_etaP3:belowHits_etaP2:belowHits_etaP1:belowHits_etaN1:belowHits_etaN2:belowHits_etaN3:belowHits_etaN4:belowHits_etaN5:belowHits_etaN6:cluster_counter");
+  rd_NBelow = new TNtuple("rd_NBelow","rd_NBelow",
+     "belowHits_etaP6:belowHits_etaP5:belowHits_etaP4:belowHits_etaP3:belowHits_etaP2:belowHits_etaP1:belowHits_etaN1:belowHits_etaN2:belowHits_etaN3:belowHits_etaN4:belowHits_etaN5:belowHits_etaN6:cluster_counter");
+
+  // geo
+  NGeo = new TNtuple("NGeo","NGeo",
+     "geoHits_etaP6:geoHits_etaP5:geoHits_etaP4:geoHits_etaP3:geoHits_etaP2:geoHits_etaP1:geoHits_etaN1:geoHits_etaN2:geoHits_etaN3:geoHits_etaN4:geoHits_etaN5:geoHits_etaN6:cluster_counter");
+  nd_NGeo = new TNtuple("nd_NGeo","nd_NGeo",
+     "geoHits_etaP6:geoHits_etaP5:geoHits_etaP4:geoHits_etaP3:geoHits_etaP2:geoHits_etaP1:geoHits_etaN1:geoHits_etaN2:geoHits_etaN3:geoHits_etaN4:geoHits_etaN5:geoHits_etaN6:cluster_counter");
+  rd_NGeo = new TNtuple("rd_NGeo","rd_NGeo",
+     "geoHits_etaP6:geoHits_etaP5:geoHits_etaP4:geoHits_etaP3:geoHits_etaP2:geoHits_etaP1:geoHits_etaN1:geoHits_etaN2:geoHits_etaN3:geoHits_etaN4:geoHits_etaN5:geoHits_etaN6:cluster_counter");
+
+  NLooper = new TNtuple("NLooper","NLooper",
+     "looperHits_etaP6:looperHits_etaP5:looperHits_etaP4:looperHits_etaP3:looperHits_etaP2:looperHits_etaP1:looperHits_etaN1:looperHits_etaN2:looperHits_etaN3:looperHits_etaN4:looperHits_etaN5:looperHits_etaN6:cluster_counter");
+  nd_NLooper = new TNtuple("nd_NLooper","nd_NLooper",
+     "looperHits_etaP6:looperHits_etaP5:looperHits_etaP4:looperHits_etaP3:looperHits_etaP2:looperHits_etaP1:looperHits_etaN1:looperHits_etaN2:looperHits_etaN3:looperHits_etaN4:looperHits_etaN5:looperHits_etaN6:cluster_counter");
+  rd_NLooper = new TNtuple("rd_NLooper","rd_NLooper",
+     "looperHits_etaP6:looperHits_etaP5:looperHits_etaP4:looperHits_etaP3:looperHits_etaP2:looperHits_etaP1:looperHits_etaN1:looperHits_etaN2:looperHits_etaN3:looperHits_etaN4:looperHits_etaN5:looperHits_etaN6:cluster_counter");
+  NStrange = new TNtuple("NStrange","NStrange",
+     "strangeHits_etaP6:strangeHits_etaP5:strangeHits_etaP4:strangeHits_etaP3:strangeHits_etaP2:strangeHits_etaP1:strangeHits_etaN1:strangeHits_etaN2:strangeHits_etaN3:strangeHits_etaN4:strangeHits_etaN5:strangeHits_etaN6:cluster_counter");
+  nd_NStrange = new TNtuple("nd_NStrange","nd_NStrange",
+     "strangeHits_etaP6:strangeHits_etaP5:strangeHits_etaP4:strangeHits_etaP3:strangeHits_etaP2:strangeHits_etaP1:strangeHits_etaN1:strangeHits_etaN2:strangeHits_etaN3:strangeHits_etaN4:strangeHits_etaN5:strangeHits_etaN6:cluster_counter");
+  rd_NStrange = new TNtuple("rd_NStrange","rd_NStrange",
+     "strangeHits_etaP6:strangeHits_etaP5:strangeHits_etaP4:strangeHits_etaP3:strangeHits_etaP2:strangeHits_etaP1:strangeHits_etaN1:strangeHits_etaN2:strangeHits_etaN3:strangeHits_etaN4:strangeHits_etaN5:strangeHits_etaN6:cluster_counter");
+  NHitAssoc = new TNtuple("NHitAssoc","NHitAssoc","dist_3D:dist_z");
+
+  hClusterEta_1_7 = new TH1F("hClusterEta_1_7","hClusterEta_1_7",28,-7.,7.);
+  hClusterEta_8_13 = new TH1F("hClusterEta_8_13","hClusterEta_8_13",28,-7.,7.);
+  hClusterEta_14_20 = new TH1F("hClusterEta_14_20","hClusterEta_14_20",28,-7.,7.);
+  hClusterEta_21_31 = new TH1F("hClusterEta_21_31","hClusterEta_21_31",28,-7.,7.);
+  hClusterEta_32_52 = new TH1F("hClusterEta_32_52","hClusterEta_32_52",28,-7.,7.);
+  hClusterEta_53_499 = new TH1F("hClusterEta_53_499","hClusterEta_53_499",28,-7.,7.);
+
+  hTestEtaFull = new TH1D("hTestEtaFull","hTestEtaFull",14,-3.5,3.5);
+  hTestEtaFullV = new TH1D("hTestEtaFullV","hTestEtaFullV",14,-3.5,3.5);
+  hTest_nd = new TH1D("hTest_nd","hTest_nd",14,-3.5,3.5);
+  hTest_nd_counter = new TH1D("hTest_nd_counter","hTest_nd_counter",14,-3.5,3.5);
+  hTest_sd_1 = new TH1D("hTest_sd_1","hTest_sd_1",14,-3.5,3.5);
+  hTest_sd_1_counter = new TH1D("hTest_sd_1_counter","hTest_sd_1_counter",14,-3.5,3.5);
+  hTest_sd_2 = new TH1D("hTest_sd_2","hTest_sd_2",14,-3.5,3.5);
+  hTest_sd_2_counter = new TH1D("hTest_sd_2_counter","hTest_sd_2_counter",14,-3.5,3.5);
+  hTest_dd = new TH1D("hTest_dd","hTest_dd",14,-3.5,3.5);
+  hTest_dd_counter = new TH1D("hTest_dd_counter","hTest_dd_counter",14,-3.5,3.5);
+  hTestEtaRestricted_10 = new TH1D("hTestEtaRestricted_10","hTestEtaRestricted_10",14,-3.5,3.5);
+  hTestEta_1_8 = new TH1D("hTestEta_1_8","hTestEta_1_8",28,-7.,7.);
+  hTestEta_9_15 = new TH1D("hTestEta_9_15","hTestEta_9_15",28,-7.,7.);
+  hTestEta_16_23 = new TH1D("hTestEta_16_23","hTestEta_16_23",28,-7.,7.);
+  hTestEta_24_36 = new TH1D("hTestEta_24_36","hTestEta_24_36",28,-7.,7.);
+  hTestEta_37_58 = new TH1D("hTestEta_37_58","hTestEta_37_58",28,-7.,7.);
+  hTestEta_59_499 = new TH1D("hTestEta_59_499","hTestEta_59_499",28,-7.,7.);
+
+  hTestEtaRestricted = new TH1D("hTestEtaRestricted","hTestEtaRestricted",14,-3.5,3.5);
+  hTestEtaRestricted_1 = new TH1D("hTestEtaRestricted_1","hTestEtaRestricted_1",14,-3.5,3.5);
+  hTestEtaRestrictedV = new TH1D("hTestEtaRestrictedV","hTestEtaRestrictedV",14,-3.5,3.5);
+
+  full = 0;
+  fullV = 0;
+  restricted = 0;
+  restrictedV = 0;
+  num_nd = 0;
+  num_nd_counter = 0;
+  num_sd_1 = 0;
+  num_sd_1_counter = 0;
+  num_sd_2 = 0;
+  num_sd_2_counter = 0;
+  num_dd = 0;
+  num_dd_counter = 0;
+  num_10 = 0;
+  num_1_8 = 0;
+  num_9_15 = 0; 
+  num_16_23 = 0; 
+  num_24_36 = 0; 
+  num_37_58 = 0; 
+  num_59_499 = 0; 
+  // cluster
+  num_cluster_1_7 = 0;
+  num_cluster_8_13 = 0; 
+  num_cluster_14_20 = 0; 
+  num_cluster_21_31 = 0; 
+  num_cluster_32_52 = 0; 
+  num_cluster_53_499 = 0; 
+
+  PureCorrEta = new TH1F("PureCorrEta","PureCorrEta",30,-3.,3.);
+  PureCutCorrEta = new TH1F("PureCutCorrEta","PureCutCorrEta",30,-3.,3.);
+  DesiredEtaDist = new TH1F("DesiredEtaDist","DesiredEtaDist",30,-3.,3.);
+  FeriDesiredEta = new TH1F("FeriDesiredEta","FeriDesiredEta",30,-3.,3.);
+  SimRecCorrEta = new TH1F("SimRecCorrEta","SimRecCorrEta",30,-3.,3.);
+  RecAdc = new TH1F("RecAdc","RecAdc",2550,0.,2550.);
+  ResCentralAdc = new TH1F("ResCentralAdc","ResCentralAdc",50,0.,2550.);
+  ResCentralAdcFine = new TH1F("ResCentralAdcFine","ResCentralAdcFine",50,0.,500.);
+  ResElseCentralAdc = new TH1F("ResElseCentralAdc","ResElseCentralAdc",50,0.,2550.);
+  ResPureAdc = new TH1F("ResPureAdc","ResPureAdc",50,0.,2550.);
+  ResPureAdc_det = new TH1F("ResPureAdc_det","ResPureAdc_det",50,0.,2550.);
+  ResPureCentralAdc = new TH1F("ResPureCentralAdc","ResPureCentralAdc",50,0.,2550.);
+  ResPureCutAdc = new TH1F("ResPureCutAdc","ResPureCutAdc",50,0.,2550.);
+  ResPureCutCentralAdc = new TH1F("ResPureCutCentralAdc","ResPureCutCentralAdc",50,0.,2550.);
+
+  SimEnergyLoss = new TH1F("SimEnergyLoss","SimEnergyLoss",200,0.,0.003);
+  RecAdcvsCorrEta = new TH2F("RecAdcvsCorrEta","RecAdcvsCorrEta",300,-3.,3.,25500,0.,2550.);
+  SimRecAdcvsCorrEta = new TH2F("SimRecAdcvsCorrEta","SimRecAdcvsCorrEta",300,-3.,3.,2550,0.,2550.);
+  ResSimRecAdc = new TH1F("ResSimRecAdc","ResSimRecAdc",50,0.,2550.);
+  ResSimRecAdc_det = new TH1F("ResSimRecAdc_det","ResSimRecAdc_det",50,0.,2550.);
+  ResSimRecAdcFine = new TH1F("ResSimRecAdcFine","ResSimRecAdcFine",80,0.,800.);
+  ResSimRecAdcLog = new TH1F("ResSimRecAdcLog","ResSimRecAdcLog",50,3.,10.);
+  FullResSimAdc = new TH1F("FullResSimAdc","FullResSimAdc",50,0.,2550.);
+  ElseSimRecAdcvsCorrEta = new TH2F("ElseSimRecAdcvsCorrEta","ElseSimRecAdcvsCorrEta",300,-3.,3.,25500,0.,2550.);
+  ResElseSimRecAdc = new TH1F("ResElseSimRecAdc","ResElseSimRecAdc",50,0.,2550.);
+  ResElseSimRecAdc_det = new TH1F("ResElseSimRecAdc_det","ResElseSimRecAdc_det",50,0.,2550.);
+  PureAdcvsCorrEta = new TH2F("PureAdcvsCorrEta","PureAdcvsCorrEta",300,-3.,3.,2550,0.,2550.);
+  PureCutAdcvsCorrEta = new TH2F("PureCutAdcvsCorrEta","PureCutAdcvsCorrEta",300,-3.,3.,25000,0.,2550.);
+  hAdcPerCoshCorrEta = new TH2F("hAdcPerCoshCorrEta","hAdcPerCoshCorrEta",300,-3.,3.,25500,0.,2550.);
+
+  nEvents = 0;
+  test = 0;
+  proba = 0;
+  nrv = 0;
+
+}
+
+/*****************************************************************************/
+void ChargedMultiplicityAnalyzerNoSimInfo_new::endJob()
+{
+  TDirectory::TContext context(resultFile);
+
+  verticesInfo->Write();
+//  multi->Write();
+//  looper->Write();
+  multProp->Write();
+  nd_multProp->Write();
+  rd_multProp->Write();
+  multProp_looper->Write();
+  nd_multProp_looper->Write();
+  rd_multProp_looper->Write();
+//  hPabsTof->Write();
+//  nd_hPabsTof->Write();
+//  rd_hPabsTof->Write();
+//  hLooperPt->Write();
+//  hPt->Write();
+//  hNonLooperPt->Write();
+//  hProba->Write();
+//  hJustLooper->Write();
+//  nd_hJustLooper->Write();
+//  rd_hJustLooper->Write();
+//  hLastTOF->Write();
+
+//  NCheckEta->Write();
+  //clusters
+//  nCLusterVertices->Write();
+//  nClusterPrim->Write();
+//  nClusterAll->Write();
+//  nClusterUnused->Write();
+  hCorrEtaSizeY->Write();
+  hCorrEtaADC->Write();
+  hClusterZSizeY->Write();
+//  ResPureClusterY->Write();
+//  ResSimRecClusterY->Write();
+//  ResElseSimRecClusterY->Write();
+//  hClusterEta_1_7->Write();
+//  hClusterEta_8_13->Write();
+//  hClusterEta_14_20->Write();
+//  hClusterEta_21_31->Write();
+//  hClusterEta_32_52->Write();
+//  hClusterEta_53_499->Write();
+
+  //decay
+//  NDecay->Write();
+//  nd_NDecay->Write();
+//  rd_NDecay->Write();
+//  NDecayInfo->Write();
+
+  // interactions
+//  NInter->Write();
+//  nd_NInter->Write();
+//  rd_NInter->Write();
+
+  // below the cut
+//  NBelow->Write();
+//  nd_NBelow->Write();
+//  rd_NBelow->Write();
+
+  // geo
+//  NGeo->Write();
+//  nd_NGeo->Write();
+//  rd_NGeo->Write();
+
+//  NLooper->Write();
+//  nd_NLooper->Write();
+//  rd_NLooper->Write();
+//  NStrange->Write();
+//  nd_NStrange->Write();
+//  rd_NStrange->Write();
+//  NHitAssoc->Write();
+
+  hTestEtaFull->Write();
+  hTestEtaFullV->Write();
+  hTestEtaRestricted->Write();
+  hTestEtaRestricted_1->Write();
+  hTestEtaRestrictedV->Write();
+//  hTest_nd->Write();
+//  hTest_nd_counter->Write();
+//  hTest_sd_1->Write();
+//  hTest_sd_1_counter->Write();
+//  hTest_sd_2->Write();
+//  hTest_sd_2_counter->Write();
+//  hTest_dd->Write();
+//  hTest_dd_counter->Write();
+//  hTestEtaRestricted_10->Write();
+  hTestEta_1_8->Write();
+  hTestEta_9_15->Write();
+  hTestEta_16_23->Write();
+  hTestEta_24_36->Write();
+  hTestEta_37_58->Write();
+  hTestEta_59_499->Write();
+
+  PureCorrEta->Write();
+  PureCutCorrEta->Write();
+  DesiredEtaDist->Write();
+//  FeriDesiredEta->Write();
+//  SimRecCorrEta->Write();
+  RecAdc->Write();
+  ResCentralAdc->Write();
+  ResCentralAdcFine->Write();
+  ResElseCentralAdc->Write();
+  ResPureAdc->Write();
+  ResPureAdc_det->Write();
+  ResPureCentralAdc->Write();
+  ResPureCutAdc->Write();
+  ResPureCutCentralAdc->Write();
+
+//  SimEnergyLoss->Write();
+  RecAdcvsCorrEta->Write();
+//  SimRecAdcvsCorrEta->Write();
+  ResSimRecAdc->Write();
+  ResSimRecAdc_det->Write();
+  ResSimRecAdcFine->Write();
+  ResSimRecAdcLog->Write();
+  FullResSimAdc->Write();
+  ElseSimRecAdcvsCorrEta->Write();
+  ResElseSimRecAdc->Write();
+  ResElseSimRecAdc_det->Write();
+  PureAdcvsCorrEta->Write();
+  PureCutAdcvsCorrEta->Write();
+  hAdcPerCoshCorrEta->Write();
+
+  resultFile->Close();
+  delete resultFile;
+/*
+  cerr<<"We had "<<nEvents<<" number of events with 1 vertex"<<endl;
+  cerr<<"Test the number of events: filling RecCut: "<<test<<endl;
+  cerr<<"Test the number of events: filling SimPrim: "<<proba<<endl;
+  cerr<<"I found " << nrv <<" reconstructed single vertex" <<endl;
+  cerr<<"FULL: "<<full<<endl;
+  cerr<<"FULLV: "<<fullV<<endl;
+  cerr<<"RESTRICTED: "<<restricted<<endl;
+  cerr<<"RESTRICTEDV: "<<restrictedV<<endl;
+  cerr<<"num_nd: "<<num_nd<<endl;
+  cerr<<"num_nd_counter: "<<num_nd_counter<<endl;
+  cerr<<"num_sd_1: "<<num_sd_1<<endl;
+  cerr<<"num_sd_1_counter: "<<num_sd_1_counter<<endl;
+  cerr<<"num_sd_2: "<<num_sd_2<<endl;
+  cerr<<"num_sd_2_counter: "<<num_sd_2_counter<<endl;
+  cerr<<"num_dd: "<<num_dd<<endl;
+  cerr<<"num_dd_counter: "<<num_dd_counter<<endl;
+  cerr<<"num_10: "<<num_10<<endl;
+  cerr<<"num_1_8: "<<num_1_8<<endl;
+  cerr<<"num_9_15: "<<num_9_15<<endl;
+  cerr<<"num_16_23: "<<num_16_23<<endl;
+  cerr<<"num_24_36: "<<num_24_36<<endl;
+  cerr<<"num_37_58: "<<num_37_58<<endl;
+  cerr<<"num_59_499: "<<num_59_499<<endl;
+  cerr<<" CLUSTERS -STARTS-"<< endl;
+  cerr<<"num_cluster_1_7: "<<num_cluster_1_7<<endl;
+  cerr<<"num_cluster_8_13: "<<num_cluster_8_13<<endl;
+  cerr<<"num_cluster_14_20: "<<num_cluster_14_20<<endl;
+  cerr<<"num_cluster_21_31: "<<num_cluster_21_31<<endl;
+  cerr<<"num_cluster_32_52: "<<num_cluster_32_52<<endl;
+  cerr<<"num_cluster_53_499: "<<num_cluster_53_499<<endl;
+  cerr<<" CLUSTERS -FINISHED-"<< endl;
+*/
+}
+
+/*****************************************************************************/
+void ChargedMultiplicityAnalyzerNoSimInfo_new::clusterVertices
+    (const edm::Event& ev, const edm::EventSetup& es,
+     const reco::VertexCollection* vertices,
+     edm::Handle<SiPixelRecHitCollection> siPixelRecCollection)
+{
+//  edm::Handle<edm::SimVertexContainer> simVertices;
+//  ev.getByType(                        simVertices);
+
+//  float sver_z = 0;
+//  if((*(simVertices.product())).size() > 0)
+//    sver_z = (*(simVertices.product())).at(0).position().z();
+
+  float rver_z = 0;
+  if(vertices->size() > 0) {
+    reco::VertexCollection::const_iterator vertex = vertices->begin();
+    rver_z = vertex->z();
+  }
+
+  int numRecHits_1l = 0;
+  edm::ESHandle<TrackerGeometry> geom;
+  es.get<TrackerDigiGeometryRecord>().get(geom);
+  const SiPixelRecHitCollection pixelRecHits = *(siPixelRecCollection.product());
+  for(SiPixelRecHitCollection::DataContainer::const_iterator iPRH = pixelRecHits.data().begin(); iPRH != pixelRecHits.data().end(); ++iPRH) {
+      const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit(iPRH->geographicalId()));
+      PXBDetId pdetId = PXBDetId(iPRH->geographicalId());
+      int layer=pdetId.layer();
+      GlobalPoint globalPosition = pgdu->toGlobal(iPRH->localPosition());
+      bool isAnyPixelAtEdge = isRecHitAtTheEdge(iPRH,pgdu);
+      if(!isAnyPixelAtEdge && layer == 1 && (pgdu->subDetector() == GeomDetEnumerators::PixelBarrel))
+        numRecHits_1l++;
+  }
+
+  vector<float> result;
+  result.push_back(numRecHits_1l);
+//  result.push_back(sver_z);
+  result.push_back(rver_z);
+  nCLusterVertices->Fill(&result[0]);
+}
+
+/*****************************************************************************/
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::aboveTriggerThreshold(edm::Handle<CaloTowerCollection> towers)
+{
+  int negTowers = 0;
+  int posTowers = 0;
+  for(CaloTowerCollection::const_iterator cal = towers->begin(); cal != towers->end(); ++cal) {
+     for(unsigned int i = 0; i < cal->constituentsSize(); i++) {
+        const DetId id = cal->constituent(i);
+        if(id.det() == DetId::Hcal) {
+          HcalSubdetector subdet=(HcalSubdetector(id.subdetId()));
+          if(subdet == HcalForward) {
+            if(cal->energy()>1.4 && cal->eta()<0)
+              negTowers++;
+            if(cal->energy()>1.4 && cal->eta()>0)
+              posTowers++;
+          }
+        }
+     }    
+  }
+  if(negTowers>10 && posTowers>10)
+    return true;
+  else
+    return false;
+}
+
+/*****************************************************************************/
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::trackTrigger(edm::Handle<reco::TrackCollection>& recCollection)
+{
+  int tracks = recCollection.product()->size();
+  if(tracks>0)
+    return true;
+  else
+    return false;
+}
+
+/*****************************************************************************/
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::lessThan9Trigger(edm::Handle<reco::TrackCollection>& recCollection)
+{
+  int tracks = recCollection.product()->size();
+  if(tracks<9)
+    return true;
+  else
+    return false;
+}
+
+/*****************************************************************************/
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::atLeast9Trigger(edm::Handle<reco::TrackCollection>& recCollection)
+{
+  int tracks = recCollection.product()->size();
+  if(tracks>=9)
+    return true;
+  else
+    return false;
+}
+
+/*****************************************************************************/
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::track5Trigger(edm::Handle<reco::TrackCollection>& recCollection)
+{
+  int tracks = recCollection.product()->size();
+  if(tracks>4)
+    return true;
+  else
+    return false;
+}
+
+/*****************************************************************************/
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::track10Trigger(edm::Handle<reco::TrackCollection>& recCollection)
+{
+  int tracks = recCollection.product()->size();
+  if(tracks>9)
+    return true;
+  else
+    return false;
+}
+
+/*****************************************************************************/
+/*
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::RichardMinBias(Handle<HcalTrigPrimDigiCollection>& tpg)
+{
+  bool pos = false;
+  bool neg = false; 
+  double tpg_et = 0.;
+//  std::cerr<<"@@@@ tpg->size(): "<< tpg->size() << std::endl;
+  for(HcalTrigPrimDigiCollection::const_iterator tpg_iter = tpg->begin(); tpg_iter != tpg->end(); ++tpg_iter) {
+    tpg_et = double(tpg_iter->SOI_compressedEt());//this is the trig.tow
+
+    if(TMath::Abs(tpg_iter->id().ieta())>=29.) {
+      if(tpg_et>=2.)
+        pos = true;
+    }
+
+    if(tpg_iter->id().ieta()<=-29.) {
+      if(tpg_et>=2.)
+        neg = true;
+    }
+  }
+  if(neg && pos)
+    return true;
+  else
+    return false;
+}
+*/
+/*****************************************************************************/
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::isRecHitAtTheEdge(SiPixelRecHitCollection::DataContainer::const_iterator iPRH,
+                                                    const PixelGeomDetUnit* pgdu)
+{
+  bool isAnyPixelAtEdge = false;
+  std::vector<SiPixelCluster::Pixel> pixels = (*iPRH).cluster()->pixels();
+  for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end(); pixel++) {
+     int pixelX = int((*pixel).x);
+     int pixelY = int((*pixel).y);
+     const RectangularPixelTopology* theTopol = dynamic_cast<const RectangularPixelTopology*>( & (pgdu->specificTopology()) );
+     if(theTopol->isItEdgePixelInX(pixelX) || theTopol->isItEdgePixelInY(pixelY)) {
+       isAnyPixelAtEdge = true;
+//       cerr<<"XXXX At the EDGE"<<endl;
+     }
+  }
+  return isAnyPixelAtEdge;
+}
+
+/*****************************************************************************/
+void ChargedMultiplicityAnalyzerNoSimInfo_new::onFirst(edm::Handle<SiPixelRecHitCollection>& siPixelRecCollection,
+                                                  const reco::VertexCollection* vertices,
+                                                  const edm::Event& ev,
+                                                  const edm::EventSetup& es)
+{
+  int numrvertices = vertices->size();
+
+  if(numrvertices!=1)
+    return;
+
+  float rver_z = 0;
+  if(numrvertices==1)  {
+     reco::VertexCollection::const_iterator vertex = vertices->begin();
+     rver_z = vertex->z();
+     //std::cerr<< " [ChargedMultiplicityAnalyzerNoSimInfo_new]: TEST vertex_z: "<< rver_z << std::endl;
+  }
+
+  edm::ESHandle<TrackerGeometry> geom;
+  es.get<TrackerDigiGeometryRecord>().get(geom);
+  const SiPixelRecHitCollection pixelRecHits = *(siPixelRecCollection.product());
+
+  // Check all and unused RecHits
+  // collect event-by-event
+  //ofstream file("vertex.log");
+  //file<<" # recVertex at: " << rver_z << endl;
+  hClusterZSizeY->Reset();
+  for(SiPixelRecHitCollection::DataContainer::const_iterator iPRH = pixelRecHits.data().begin(); iPRH != pixelRecHits.data().end(); ++iPRH) {
+      const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit(iPRH->geographicalId()));
+      PXBDetId pdetId = PXBDetId(iPRH->geographicalId());
+      int layer=pdetId.layer();
+      GlobalPoint globalPosition = pgdu->toGlobal(iPRH->localPosition());
+      float z = globalPosition.z();
+      float R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+      float det_eta = globalPosition.eta();
+      float eta_corr = -999.;
+      eta_corr = -log(tan(atan2(R,(z-rver_z))/2.));
+      float ccharge = (iPRH)->cluster()->charge();
+      float adc = ccharge/135.;
+      //all
+      bool isAnyPixelAtEdge = isRecHitAtTheEdge(iPRH,pgdu);
+      if(!isAnyPixelAtEdge && layer == 1 && (pgdu->subDetector() == GeomDetEnumerators::PixelBarrel)) {
+         PureAdcvsCorrEta->Fill(eta_corr, adc);
+         PureCorrEta->Fill(eta_corr);
+         if((130.*cosh(eta_corr)-33.)<adc) {  //cut
+            PureCutCorrEta->Fill(eta_corr);
+            PureCutAdcvsCorrEta->Fill(eta_corr,adc);
+         }
+         // pixel size in y direction vs eta_corr
+         hCorrEtaSizeY->Fill(eta_corr,(iPRH)->cluster()->sizeY());
+         hCorrEtaADC->Fill(eta_corr,adc);
+         hClusterZSizeY->Fill(z,(iPRH)->cluster()->sizeY());
+         //file<< z<< " " << (iPRH)->cluster()->sizeY() << endl;
+         // partial distributions
+         if(eta_corr<0.1 && eta_corr>-0.1)
+            ResPureCentralAdc->Fill(adc);
+         if(eta_corr<0.1 && eta_corr>-0.1 && ((130.*cosh(eta_corr)-33.)<adc)) //cut
+            ResPureCutCentralAdc->Fill(adc);
+         if(eta_corr<2.1 && eta_corr>1.9)
+            ResPureAdc->Fill(adc);
+         if(det_eta<2.1 && det_eta>1.9)  //same as the preceding lines but we use detector eta here
+            ResPureAdc_det->Fill(adc);
+         if(eta_corr<2.1 && eta_corr>1.9 && ((130.*cosh(eta_corr)-33.)<adc)) //cut
+            ResPureCutAdc->Fill(adc);
+      }
+
+  }
+  //file.close();
+}
+
+/*****************************************************************************/
+/*
+void ChargedMultiplicityAnalyzerNoSimInfo_new::checkVertices
+  (const reco::VertexCollection* vertices,
+   edm::Handle<TrackingVertexCollection>& TVCollection,
+   edm::Handle<reco::TrackCollection>& recCollection,
+   HepMC::GenEvent * myGenEvent)
+{
+  //Number of vertices found in the event
+  vector<float> result;
+
+  int numrvertices = vertices->size();  
+  int numsvertices = TVCollection.product()->size();
+  int numrectracks = recCollection.product()->size();
+  int procID = myGenEvent->signal_process_id();
+
+  int h=1;
+  if(numrvertices>1)
+    for(reco::VertexCollection::const_iterator vert = vertices->begin(); vert != vertices->end(); vert++, h++) {
+       std::cerr<<"Z position of the "<<h<<". vertex: "<< vert->position().z() <<std::endl;
+    }
+
+  result.push_back(numrvertices);
+  result.push_back(numsvertices);    
+  result.push_back(numrectracks);
+  result.push_back(procID);
+
+  verticesInfo->Fill(&result[0]);
+ 
+  if(vertices->size()==1)
+    nrv++;
+}
+*/
+/*****************************************************************************/
+/*
+PSimHit* ChargedMultiplicityAnalyzerNoSimInfo_new::findLatestPSimHit
+  (std::vector<PSimHit>& simHits)
+{
+  PSimHit* latest;
+  latest = &(*(simHits.begin()));
+  for(std::vector<PSimHit>::iterator simHit = simHits.begin(); simHit != simHits.end(); ++simHit) {
+     if(simHit->pabs() < latest->pabs())  {
+        latest = &(*simHit);
+     }
+  }
+
+  return latest;
+}
+*/
+/*****************************************************************************/
+/*
+PSimHit* ChargedMultiplicityAnalyzerNoSimInfo_new::findEarliestPSimHit
+  (std::vector<PSimHit>& simHits)
+{
+  if(simHits.size()<1)
+    cerr<<"XXXX There're no simhits here"<<endl;
+  PSimHit* earliest;
+  earliest = &(*(simHits.begin()));
+  int kkk = 0;
+  int which_kkk = 0;
+  for(std::vector<PSimHit>::iterator simHit = simHits.begin(); simHit != simHits.end(); ++simHit, kkk++) {
+     if(simHit->timeOfFlight() < earliest->timeOfFlight())  {
+        earliest = &(*simHit);
+        which_kkk = kkk;
+     }
+  }
+
+//test
+  PSimHit* frenk;
+  frenk = &(*(simHits.begin()));
+  int kk = 0;
+  int which_kk = 0;
+  for(std::vector<PSimHit>::iterator simHit = simHits.begin(); simHit != simHits.end(); ++simHit, kk++) {
+     if(simHit->pabs() > frenk->pabs())  {
+        frenk = &(*simHit);
+        which_kk = kk;
+     }
+  }
+  
+//  if(!comparePSimHits(&(*earliest), &(*frenk)))
+//    cerr<<"XXXX DEAD DEAD DEAD   number of PSimHits: " << simHits.size() << ". Their position: "<<  which_kkk << ", " << which_kk << endl;
+
+  return earliest;
+}
+*/
+/*****************************************************************************/
+/*
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::comparePSimHits
+  (const PSimHit * hit1, const PSimHit * hit2)
+{
+  return hit1->detUnitId() == hit2->detUnitId() &&
+         hit1->trackId() == hit2->trackId() &&
+         hit1->timeOfFlight() == hit2->timeOfFlight() &&
+         hit1->pabs() == hit2->pabs() &&
+         hit1->processType() == hit2->processType() &&
+         hit1->particleType() == hit2->particleType() &&
+         hit1->energyLoss() == hit2->energyLoss() &&
+         hit1->thetaAtEntry() == hit2->thetaAtEntry() &&
+         hit1->phiAtEntry() == hit2->phiAtEntry();
+}
+*/
+/*****************************************************************************/
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::compareRecHits
+  (const SiPixelRecHit * hit1, const SiPixelRecHit * hit2)
+{
+  return hit1->geographicalId() == hit2->geographicalId() &&
+        (hit1->cluster())->charge() == (hit2->cluster())->charge() &&
+        (hit1->cluster())->size() == (hit2->cluster())->size() &&
+        (hit1->cluster())->sizeX() == (hit2->cluster())->sizeX() &&
+        (hit1->cluster())->sizeY() == (hit2->cluster())->sizeY();
+}
+
+/*****************************************************************************/
+/*
+void ChargedMultiplicityAnalyzerNoSimInfo_new::checkEta
+   (const edm::Event& ev, const edm::EventSetup& es, edm::Handle<CaloTowerCollection> towers,
+    edm::Handle<SiPixelRecHitCollection> siPixelRecCollection,
+    const reco::VertexCollection* vertices,
+    HepMC::GenEvent * myGenEvent)
+{
+  // Get simulated
+  edm::Handle<TrackingParticleCollection> simCollection;
+//  ev.getByType(simCollection);
+  ev.getByLabel("mergedtruth","MergedTrackTruth",simCollection);
+
+  const TrackingParticleCollection *tPC = simCollection.product();
+
+  edm::Handle<vector<PSimHit> > simHits;
+  ev.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof", simHits);
+
+  vector<float> result;
+  const SiPixelRecHitCollection pixelRecHits = *(siPixelRecCollection.product());
+  edm::ESHandle<TrackerGeometry> geom;
+  es.get<TrackerDigiGeometryRecord>().get(geom);
+
+  double rver_z = 0;
+  if(vertices->size()==1)  {
+     reco::VertexCollection::const_iterator vertex = vertices->begin();
+     rver_z = vertex->z();
+  }
+
+  for(SiPixelRecHitCollection::DataContainer::const_iterator iPRH = pixelRecHits.data().begin(); iPRH != pixelRecHits.data().end(); ++iPRH ) {
+     result.clear();
+
+     const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit((*iPRH).geographicalId()));
+     PXBDetId pdetId = PXBDetId(iPRH->geographicalId());
+     int layer=pdetId.layer();
+     if(!(pgdu->subDetector() == GeomDetEnumerators::PixelBarrel && layer == 1))
+       continue;
+     double ccharge = (*iPRH).cluster()->charge();
+     double adc = ccharge/135.;
+     GlobalPoint globalPosition = pgdu->toGlobal(iPRH->localPosition());
+     // corrected eta
+     double eta = globalPosition.eta();
+     double eta_corr = 0.;
+     double above_eta = 30.;
+     double above_eta_corr = 30.;
+     if(vertices->size()==1) {
+       double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+       eta_corr = -log(tan(atan2(R,(globalPosition.z()-rver_z))/2.));
+     }
+     else
+       eta_corr = eta;
+     
+     if(adc>(130.*cosh(eta_corr)-33.)) {
+       above_eta = eta;
+       above_eta_corr = eta_corr;       
+     }
+    
+     result.push_back(adc); //adc
+     result.push_back(eta); //eta
+     result.push_back(eta_corr); //eta_corr
+     result.push_back(above_eta);//above_eta
+     result.push_back(above_eta_corr); //above_eta_corr
+
+     NCheckEta->Fill(&result[0]);
+  }
+
+}
+*/
+/*****************************************************************************/
+/*
+void ChargedMultiplicityAnalyzerNoSimInfo_new::checkSimTracks
+   (const edm::Event& ev, const edm::EventSetup& es, edm::Handle<SiPixelRecHitCollection> siPixelRecCollection)
+{
+  // Get simulated
+  edm::Handle<TrackingParticleCollection> simCollection;
+//  ev.getByType(simCollection);
+  ev.getByLabel("mergedtruth","MergedTrackTruth",simCollection);
+
+  const TrackingParticleCollection *tPC = simCollection.product();
+
+  edm::ESHandle<TrackerGeometry> geom;
+  es.get<TrackerDigiGeometryRecord>().get(geom);
+
+  for(TrackingParticleCollection::const_iterator t = tPC->begin(); t != tPC->end(); ++t) {
+    if(TMath::Abs(t->pt() - 1.07793)<0.0001 || TMath::Abs(t->pt() - 1.7243)<0.0001) {
+      cerr<< "------------ STRANGE SIM TRACK --------------------" << endl;
+      cerr<< " number of sim hits: " << t->trackPSimHit().size() << endl;
+      for(std::vector<PSimHit>::const_iterator
+                    simHit = t->pSimHit_begin();
+                    simHit!= t->pSimHit_end(); simHit++) {
+         const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit(simHit->detUnitId()));
+         PXBDetId pdetId = PXBDetId(simHit->detUnitId());
+         int layer=pdetId.layer();
+         cerr<< " --- hit ---" << endl;
+         cerr<< "  [process type]: " << simHit->processType() << endl;
+         if(pgdu!=0) {
+           cerr<< "  [sub detector]: " << pgdu->subDetector() << endl;
+           cerr<< "  [layer]:        " << layer << ". layer" << endl;
+           GlobalPoint globalPosition = pgdu->toGlobal(simHit->localPosition());
+           double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+           cerr<< "  [R]:            " << R << endl;
+           cerr<< "  [z pos]:        " << globalPosition.z() << endl;
+         }
+         if(pgdu==0) {
+           cerr<< "  [sub detector]: No valid detector!" << endl; 
+           cerr<< "  [layer]:        No valid detector!" << endl;
+       	   cerr<< "  [R]:            No valid detector!" << endl;
+           cerr<< "  [z pos]:        No valid detector!" << endl;
+         }
+      }
+    }
+  }
+//////// CHECK HIT ASSOCIATION
+
+          theHits = siPixelRecCollection.product();
+          TrackerHitAssociator theHitAssociator(ev);
+
+          for(SiPixelRecHitCollection::const_iterator detunit_iter = theHits->begin();
+                                                   detunit_iter!= theHits->end(); detunit_iter++)
+          {
+            SiPixelRecHitCollection::DetSet range = *detunit_iter;
+            unsigned int id = range.detId();
+            const PixelGeomDetUnit* pixelDet =
+              dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet((id)));
+
+            PXBDetId pid(id); 
+            // Take all hits
+            if(pid.subdetId() == PixelSubdetector::PixelBarrel && pid.layer()==1) {
+              for(SiPixelRecHitCollection::DetSet::const_iterator recHit = range.begin();
+                                                          recHit!= range.end(); recHit++)
+              {
+                GlobalPoint gpos = pixelDet->toGlobal(recHit->localPosition());
+
+                // associate 
+                vector<PSimHit> simHits_ass = theHitAssociator.associateHit(*recHit);
+                for(std::vector<PSimHit>::const_iterator assSimHit = simHits_ass.begin();
+                                                         assSimHit != simHits_ass.end(); assSimHit++)  {
+                  const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit(assSimHit->detUnitId()));
+                  PXBDetId pdetId = PXBDetId(assSimHit->detUnitId());
+                  int layer=pdetId.layer();
+                  GlobalPoint globalPosition = pgdu->toGlobal(assSimHit->localPosition());
+
+                   if(assSimHit->processType()==2) {
+                     vector<float> result;
+                     result.push_back((globalPosition-gpos).mag());
+                     result.push_back(TMath::Abs(globalPosition.z()-gpos.z()));
+                     NHitAssoc->Fill(&result[0]);
+                   }
+                }
+              }
+            }
+          }
+}
+*/
+/*****************************************************************************/
+float ChargedMultiplicityAnalyzerNoSimInfo_new::geomAcc(double vert_z, double eta_l, double eta_h, int desLayer)
+{
+  // eta = -ln(tan(theta/2)); pixel in z dir: 55 cm
+  // double eta_corr = -log(tan(atan2(R,(globalPosition.z()-rver_z))/2.));
+
+  float eta_max_lemma = 2.5;
+  float eta_min_lemma = -2.5;
+  float eta_max = 2.5;
+  float eta_min = -2.5;
+  double R = 4.4;
+  if(desLayer == 2) {eta_max = 2.; eta_min = -2.; R = 7.3;}
+  if(desLayer == 3) {eta_max = 1.7; eta_min = -1.7; R = 10.2;}
+  float binwidth = 0.5;
+  float halflenght = 55./2.;  // 53? 54?
+
+  eta_max_lemma = -log(tan(atan2(R,(halflenght-vert_z))/2.));
+  eta_min_lemma = -log(tan(atan2(R,(-halflenght-vert_z))/2.));
+
+  if(eta_max_lemma>eta_min_lemma) {
+    eta_max = eta_max_lemma;
+    eta_min = eta_min_lemma;
+  } else {
+    eta_max = eta_min_lemma;
+    eta_min = eta_max_lemma;
+  }
+
+//  cerr<< " vert_z : " << vert_z << endl;
+//  cerr<< " eta_min: " << eta_min << endl;
+//  cerr<< " eta_max: " << eta_max << endl;
+//  cerr<< " eta_l:   " << eta_l << endl;
+//  cerr<< " eta_h:   " << eta_h << endl;
+
+  // correction for small pt-s:
+  eta_max = eta_max-0.006;  // TEST, BEWARE
+  eta_min = eta_min+0.006;  // TEST, BEWARE
+
+  if(eta_h < eta_min) { if(eta_l==0.0) cerr<< " STRANGE 1 " << endl; return 0.; }
+  if(eta_l > eta_max) { if(eta_l==0.0) cerr<< " STRANGE 2 " << endl; return 0.; }
+  if(eta_l > eta_min && eta_h < eta_max) { return 1.; }
+  if(eta_l < eta_min && eta_h > eta_min) { return ((eta_h-eta_min)/binwidth); }
+  if(eta_l < eta_max && eta_h > eta_max) { return ((eta_max-eta_l)/binwidth); }
+
+  return -1.;
+}
+
+/*****************************************************************************/
+void ChargedMultiplicityAnalyzerNoSimInfo_new::multiplicityProperties
+   (const edm::Event& ev, const edm::EventSetup& es, 
+//    edm::Handle<CaloTowerCollection> towers,
+    edm::Handle<SiPixelRecHitCollection> siPixelRecCollection,
+    const reco::VertexCollection* vertices,
+//    edm::Handle<reco::TrackCollection>& recCollection,
+//    Handle<HcalTrigPrimDigiCollection>& tpg,
+    int desLayer)
+{
+  std::vector<const SiPixelRecHit*> knownHits;
+
+  edm::ESHandle<TrackerGeometry> geom;
+  es.get<TrackerDigiGeometryRecord>().get(geom);
+
+  vector<float> result;
+  const SiPixelRecHitCollection pixelRecHits = *(siPixelRecCollection.product());
+
+  // vertex position
+  double rver_z = 0;
+  if(vertices->size()==1)  { //with cluster vertexing this should always be the case
+     reco::VertexCollection::const_iterator vertex = vertices->begin();
+     rver_z = vertex->z();
+  }
+
+  result.push_back(rver_z); //rver_z
+
+  // cosh(Eta) cut.
+  std::vector<const SiPixelRecHit*> passedRecHits;
+  std::vector<const SiPixelRecHit*> failedRecHitsP5;
+  std::vector<const SiPixelRecHit*> failedRecHitsP4;
+  std::vector<const SiPixelRecHit*> failedRecHitsP3;
+  std::vector<const SiPixelRecHit*> failedRecHitsP2;
+  std::vector<const SiPixelRecHit*> failedRecHitsP1;
+  std::vector<const SiPixelRecHit*> failedRecHitsN1;
+  std::vector<const SiPixelRecHit*> failedRecHitsN2;
+  std::vector<const SiPixelRecHit*> failedRecHitsN3;
+  std::vector<const SiPixelRecHit*> failedRecHitsN4;
+  std::vector<const SiPixelRecHit*> failedRecHitsN5;
+
+  for(SiPixelRecHitCollection::DataContainer::const_iterator iPRH = pixelRecHits.data().begin(); iPRH != pixelRecHits.data().end(); ++iPRH ) {
+     const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit((*iPRH).geographicalId()));
+     PXBDetId pdetId = PXBDetId(iPRH->geographicalId());
+     int layer=pdetId.layer();
+
+     double ccharge = (*iPRH).cluster()->charge();
+     double adc = ccharge/135.;
+     GlobalPoint globalPosition = pgdu->toGlobal(iPRH->localPosition());
+     // corrected eta
+     if(vertices->size()!=1)
+       break;
+     double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+     double eta_corr = -log(tan(atan2(R,(globalPosition.z()-rver_z))/2.));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc>(130.*cosh(eta_corr)-33.)))
+       passedRecHits.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<2.5 && eta_corr>2.0)
+       failedRecHitsP5.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<=2.0 && eta_corr>1.5)
+       failedRecHitsP4.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<=1.5 && eta_corr>1.0)
+       failedRecHitsP3.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<=1.0 && eta_corr>0.5)
+       failedRecHitsP2.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<=0.5 && eta_corr>0.0)
+       failedRecHitsP1.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<=0.0 && eta_corr>-0.5)
+       failedRecHitsN1.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<=-0.5 && eta_corr>-1.0)
+       failedRecHitsN2.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<=-1.0 && eta_corr>-1.5)
+       failedRecHitsN3.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<=-1.5 && eta_corr>-2.0)
+       failedRecHitsN4.push_back(&(*iPRH));
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc<(130.*cosh(eta_corr)-33.)) && eta_corr<=-2.0 && eta_corr>-2.5)
+       failedRecHitsN5.push_back(&(*iPRH));
+  }
+  
+  // M, /*temporarily*/ passedRecHits is /*NOT*/ IN USE!!!
+  int counter = 0;
+//  for(SiPixelRecHitCollection::DataContainer::const_iterator iPRH = pixelRecHits.data().begin(); iPRH != pixelRecHits.data().end(); ++iPRH ) {
+  for(std::vector<const SiPixelRecHit*>::const_iterator iPRH = passedRecHits.begin(); iPRH != passedRecHits.end(); ++iPRH ) {
+     const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit((**iPRH).geographicalId()));
+     PXBDetId pdetId = PXBDetId((**iPRH).geographicalId());
+     int layer=pdetId.layer();
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer))
+       counter++;
+  }
+
+  //attempt to solve problem with multiplicity arose by passedRecHits (:M != 1,2) (should it be ahead of the previous part?)
+  if(vertices->size()!=1)
+    for(SiPixelRecHitCollection::DataContainer::const_iterator iPRH = pixelRecHits.data().begin(); iPRH != pixelRecHits.data().end(); ++iPRH ) {
+       const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit((*iPRH).geographicalId()));
+       PXBDetId pdetId = PXBDetId((*iPRH).geographicalId());
+       int layer=pdetId.layer();
+       double ccharge = (*iPRH).cluster()->charge();
+       double adc = ccharge/135.;
+       GlobalPoint globalPosition = pgdu->toGlobal(iPRH->localPosition());
+       if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (adc>(130.*cosh(globalPosition.eta())-33.))) {
+         counter++;
+         passedRecHits.push_back(&(*iPRH)); //We don't apply the dEdx cut here
+       }
+    }
+
+  result.push_back(failedRecHitsP5.size());  //failedSizeP5
+  result.push_back(failedRecHitsP4.size());  //failedSizeP4
+  result.push_back(failedRecHitsP3.size());  //failedSizeP3
+  result.push_back(failedRecHitsP2.size());  //failedSizeP2
+  result.push_back(failedRecHitsP1.size());  //failedSizeP1
+  result.push_back(failedRecHitsN1.size());  //failedSizeN1
+  result.push_back(failedRecHitsN2.size());  //failedSizeN2
+  result.push_back(failedRecHitsN3.size());  //failedSizeN3
+  result.push_back(failedRecHitsN4.size());  //failedSizeN4
+  result.push_back(failedRecHitsN5.size());  //failedSizeN5
+  result.push_back(counter);  //M
+
+  //simulate triggers
+  if(simulateTriggers_) {
+    // Get trigger objects
+    edm::Handle<reco::TrackCollection>  recCollection;
+    ev.getByLabel("hltPixelTracksForMinBias", recCollection);
+
+    edm::Handle<CaloTowerCollection> towers; 
+    ev.getByLabel("towerMaker",towers);
+
+    if(aboveTriggerThreshold(towers)) {
+      result.push_back(1);  //isTrigger
+    } else {
+      result.push_back(0);  //isTrigger
+    }
+    if(trackTrigger(recCollection)) {
+      result.push_back(1);  //trackTrigger
+    } else {
+      result.push_back(0);  //trackTrigger
+    }
+    if(track5Trigger(recCollection)) {
+      result.push_back(1);  //track5Trigger
+    } else {
+      result.push_back(0);  //track5Trigger
+    }
+    if(track10Trigger(recCollection)) {
+      result.push_back(1);  //track10Trigger
+    } else {
+      result.push_back(0);  //track10Trigger
+    }
+    if(lessThan9Trigger(recCollection)) {
+      result.push_back(1);  //lessThan9Trigger
+    } else {
+      result.push_back(0);  //lessThan9Trigger
+    }
+    if(atLeast9Trigger(recCollection)) {
+      result.push_back(1);  //atLeast9Trigger
+    } else {
+      result.push_back(0);  //atLeast9Trigger
+    }
+  }
+
+  if(!simulateTriggers_) {//if no triggers, set them 1
+    result.push_back(1);  //isTrigger
+    result.push_back(1);  //trackTrigger
+    result.push_back(1);  //track5Trigger
+    result.push_back(1);  //track10Trigger
+    result.push_back(1);  //lessThan9Trigger
+    result.push_back(1);  //atLeast9Trigger
+  }
+
+  if(counter>=9) {
+    result.push_back(1);  //clusterTriggAtLeast9
+  } else {
+    result.push_back(0);  //clusterTriggAtLeast9
+  }
+  if(counter<9 && counter>0) {
+    result.push_back(1);  //clusterTriggLessThan9
+  } else {
+    result.push_back(0);  //clusterTriggLessThan9
+  }
+
+  result.push_back(vertices->size());  //numVtx
+  result.push_back(1);    //numEv
+
+  // H_recMC, passedRecHits in use!!!
+  int H_recMC_etaP5 = 0;
+  int H_recMC_etaP4 = 0;
+  int H_recMC_etaP3 = 0;
+  int H_recMC_etaP2 = 0;
+  int H_recMC_etaP1 = 0;
+  int H_recMC_etaN1 = 0;
+  int H_recMC_etaN2 = 0;
+  int H_recMC_etaN3 = 0;
+  int H_recMC_etaN4 = 0;
+  int H_recMC_etaN5 = 0;
+  for(std::vector<const SiPixelRecHit*>::const_iterator iPRH = passedRecHits.begin(); iPRH != passedRecHits.end(); ++iPRH ) {
+     const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit((**iPRH).geographicalId()));
+     PXBDetId pdetId = PXBDetId((**iPRH).geographicalId());
+     int layer=pdetId.layer();
+     GlobalPoint globalPosition = pgdu->toGlobal((**iPRH).localPosition());
+     double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+     double eta_corr = -log(tan(atan2(R,(globalPosition.z()-rver_z))/2.));
+
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<2.5 && eta_corr>2.0)   //Positive etas
+       H_recMC_etaP5++;
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=2.0 && eta_corr>1.5)   //Positive etas
+       H_recMC_etaP4++;
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=1.5 && eta_corr>1.0)   //Positive etas
+       H_recMC_etaP3++;
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=1.0 && eta_corr>0.5)   //Positive etas
+       H_recMC_etaP2++;
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=0.5 && eta_corr>0.0)   //Positive etas
+       H_recMC_etaP1++;
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=0.0 && eta_corr>-0.5)   //Negative etas
+       H_recMC_etaN1++;
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-0.5 && eta_corr>-1.0)   //Negative etas
+       H_recMC_etaN2++;
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-1.0 && eta_corr>-1.5)   //Negative etas
+       H_recMC_etaN3++;
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-1.5 && eta_corr>-2.0)   //Negative etas
+       H_recMC_etaN4++;
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-2.0 && eta_corr>-2.5)   //Negative etas
+       H_recMC_etaN5++;
+
+  }
+  result.push_back(H_recMC_etaP5);  //H_recMC_etaP5
+  result.push_back(H_recMC_etaP4);  //H_recMC_etaP4
+  result.push_back(H_recMC_etaP3);  //H_recMC_etaP3
+  result.push_back(H_recMC_etaP2);  //H_recMC_etaP2
+  result.push_back(H_recMC_etaP1);  //H_recMC_etaP1
+  result.push_back(H_recMC_etaN1);  //H_recMC_etaN1
+  result.push_back(H_recMC_etaN2);  //H_recMC_etaN2
+  result.push_back(H_recMC_etaN3);  //H_recMC_etaN3
+  result.push_back(H_recMC_etaN4);  //H_recMC_etaN4
+  result.push_back(H_recMC_etaN5);  //H_recMC_etaN5
+
+  // cluster size -STARTS-
+  int clustSizeY_etaP6 = 0;
+  int clustSizeY_etaP5 = 0;
+  int clustSizeY_etaP4 = 0;
+  int clustSizeY_etaP3 = 0;
+  int clustSizeY_etaP2 = 0;
+  int clustSizeY_etaP1 = 0;
+  int clustSizeY_etaN1 = 0;
+  int clustSizeY_etaN2 = 0;
+  int clustSizeY_etaN3 = 0;
+  int clustSizeY_etaN4 = 0;
+  int clustSizeY_etaN5 = 0;
+  int clustSizeY_etaN6 = 0;
+  std::vector<const SiPixelRecHit*> passedClusters;
+  for(SiPixelRecHitCollection::DataContainer::const_iterator iPRH = pixelRecHits.data().begin(); iPRH != pixelRecHits.data().end(); ++iPRH ) {
+     const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit((*iPRH).geographicalId()));
+     PXBDetId pdetId = PXBDetId((*iPRH).geographicalId());
+     int layer=pdetId.layer();
+     GlobalPoint globalPosition = pgdu->toGlobal((*iPRH).localPosition());
+     double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+     double eta_corr = -log(tan(atan2(R,(globalPosition.z()-rver_z))/2.));
+     int clustSizeY = (iPRH)->cluster()->sizeY();
+
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<3.0 && eta_corr>=2.5 && clustSizeY>8.5)   
+       { clustSizeY_etaP6++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<2.5 && eta_corr>2.0 && clustSizeY>5.5)   //Positive etas
+       { clustSizeY_etaP5++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=2.0 && eta_corr>1.5 && clustSizeY>3.5)   //Positive etas
+       { clustSizeY_etaP4++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=1.5 && eta_corr>1.0 && clustSizeY>2.5)   //Positive etas
+       { clustSizeY_etaP3++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=1.0 && eta_corr>0.5 && clustSizeY>1.5)   //Positive etas
+       { clustSizeY_etaP2++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=0.5 && eta_corr>0.0)   //Positive etas + no cut
+       { clustSizeY_etaP1++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=0.0 && eta_corr>-0.5)   //Negative etas + no cut
+       { clustSizeY_etaN1++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-0.5 && eta_corr>-1.0 && clustSizeY>1.5)   //Negative etas
+       { clustSizeY_etaN2++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-1.0 && eta_corr>-1.5 && clustSizeY>2.5)   //Negative etas
+       { clustSizeY_etaN3++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-1.5 && eta_corr>-2.0 && clustSizeY>3.5)   //Negative etas
+       { clustSizeY_etaN4++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-2.0 && eta_corr>-2.5 && clustSizeY>5.5)   //Negative etas
+       { clustSizeY_etaN5++; passedClusters.push_back(&(*iPRH)); }
+     if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-2.5 && eta_corr>-3.0 && clustSizeY>8.5)   
+       { clustSizeY_etaN6++; passedClusters.push_back(&(*iPRH)); }
+
+  }
+  result.push_back(clustSizeY_etaP6);  //clustSizeY_etaP6
+  result.push_back(clustSizeY_etaP5);  //clustSizeY_etaP5
+  result.push_back(clustSizeY_etaP4);  //clustSizeY_etaP4
+  result.push_back(clustSizeY_etaP3);  //clustSizeY_etaP3
+  result.push_back(clustSizeY_etaP2);  //clustSizeY_etaP2
+  result.push_back(clustSizeY_etaP1);  //clustSizeY_etaP1
+  result.push_back(clustSizeY_etaN1);  //clustSizeY_etaN1
+  result.push_back(clustSizeY_etaN2);  //clustSizeY_etaN2
+  result.push_back(clustSizeY_etaN3);  //clustSizeY_etaN3
+  result.push_back(clustSizeY_etaN4);  //clustSizeY_etaN4
+  result.push_back(clustSizeY_etaN5);  //clustSizeY_etaN5
+  result.push_back(clustSizeY_etaN6);  //clustSizeY_etaN6
+
+  int cluster_counter = clustSizeY_etaP5+clustSizeY_etaP4+clustSizeY_etaP3+clustSizeY_etaP2+clustSizeY_etaP1+clustSizeY_etaN1+clustSizeY_etaN2+clustSizeY_etaN3+clustSizeY_etaN4+clustSizeY_etaN5;
+  result.push_back(cluster_counter);
+  // cluster size -FINISHED-
+
+  // fill the ntuple
+  if(desLayer==1)
+    multProp->Fill(&result[0]);
+  if(desLayer==2)
+    nd_multProp->Fill(&result[0]);
+  if(desLayer==3)
+    rd_multProp->Fill(&result[0]);
+
+  if(vertices->size()==1) {
+    // Get pixel hits
+    theHits = siPixelRecCollection.product();
+
+    for(SiPixelRecHitCollection::const_iterator detunit_iter = theHits->begin();
+                                             detunit_iter!= theHits->end(); detunit_iter++)
+    {
+      SiPixelRecHitCollection::DetSet range = *detunit_iter;
+      unsigned int id = range.detId();
+      const PixelGeomDetUnit* pixelDet =
+        dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet((id)));
+
+      PXBDetId pid(id);
+      // Take all hits
+      if(pid.subdetId() == PixelSubdetector::PixelBarrel)
+      { 
+        // Look at the first barrel only
+        if(pid.layer() == (unsigned)desLayer)
+        for(SiPixelRecHitCollection::DetSet::const_iterator recHit = range.begin();
+                             recHit!= range.end(); recHit++)
+        {
+          GlobalPoint gpos = pixelDet->toGlobal(recHit->localPosition());
+  
+          // eta and eloss
+          double R = TMath::Sqrt(gpos.x()*gpos.x()+gpos.y()*gpos.y());
+          float eta = -log(tan(atan2(R,(gpos.z()-rver_z))/2.));
+
+          float eloss = recHit->cluster()->charge();
+          int clustSizeY = recHit->cluster()->sizeY();
+  
+          vector<float> result_looper;
+
+          result_looper.push_back(rver_z);
+          result_looper.push_back(eta);
+          result_looper.push_back(eloss);
+//          result_looper.push_back(type*(isAtEdge(topology,*recHit) ? -1 : 1));
+          result_looper.push_back(counter);
+          result_looper.push_back(vertices->size());
+          result_looper.push_back(clustSizeY);
+          result_looper.push_back(cluster_counter);
+
+          // Filling
+          if(desLayer==1)
+            multProp_looper->Fill(&result_looper[0]);
+          if(desLayer==2)
+            nd_multProp_looper->Fill(&result_looper[0]);
+          if(desLayer==3)
+            rd_multProp_looper->Fill(&result_looper[0]);
+
+        }
+      }
+    }
+  }
+/*
+//one would analyze the vector "loopers" here
+    //loop over the looper particles
+    for(vector<TrackingParticle>::const_iterator tPR = loopers.begin(); tPR != loopers.end(); tPR++) {
+       //find their hits which are in the first pixel barrel layer
+//       cerr<< "Another looper " << endl; // BEWARE 
+       vector<PSimHit> looper_hits;
+       vector<PSimHit> final_looper_hits;
+       vector<PSimHit> simHits_ass;
+       for(std::vector<PSimHit>::const_iterator
+           simHit = tPR->pSimHit_begin();
+           simHit!= tPR->pSimHit_end(); simHit++)  {
+          const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit(simHit->detUnitId()));
+          if(pgdu==0)
+            continue;
+          PXBDetId pdetId = PXBDetId(simHit->detUnitId());  //geographicalId());
+          int layer=pdetId.layer();
+          if((pgdu->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && (simHit->processType() == 2)) {
+            looper_hits.push_back(*simHit);
+            //get tof and pabs for every hit
+            vector<float> pabstof;
+            pabstof.push_back(simHit->pabs());
+            pabstof.push_back(simHit->tof());
+            hPabsTof->Fill(&pabstof[0]);
+            pabstof.clear();
+          }
+       }
+
+       float pmax = 0.;
+       float pmin = 9999.;
+       const PSimHit * firstSimHit = 0;
+       const PSimHit * lastSimHit = 0;
+       // loop through the selected looper hits
+       for(std::vector<PSimHit>::const_iterator
+           simHit = looper_hits.begin();
+           simHit!= looper_hits.end(); simHit++)  {
+          // select the first hit
+          if(simHit->pabs() > pmax)
+            { pmax = simHit->pabs(); firstSimHit = &(*simHit); }
+          // select the last hit
+          if((simHit->pabs() < pmin) && !(firstSimHit->pabs()==simHit->pabs()))
+            { pmin = simHit->pabs(); lastSimHit = &(*simHit); }
+       }
+
+       // get TOF
+       if(!(lastSimHit == 0))
+         hLastTOF->Fill(lastSimHit->timeOfFlight());
+
+       // final looper hits
+       for(std::vector<PSimHit>::const_iterator
+           simHit = looper_hits.begin();
+           simHit!= looper_hits.end(); simHit++)  {
+          if(!(firstSimHit->pabs() == simHit->pabs()) && simHit->processType() == 2)   // BEWARE
+            final_looper_hits.push_back(*simHit);
+       }
+
+       for(std::vector<PSimHit>::const_iterator lSimHit = final_looper_hits.begin();
+                                                lSimHit != final_looper_hits.end(); lSimHit++)  {
+          //we have to compare the final_looper_hits to associated simHits
+//          cerr<< " Another final_looper_hit " << endl; // BEWARE
+          bool back = false;  // if we find the corresponding recHit, we should take the next element of final_looper_hit 
+          for(SiPixelRecHitCollection::const_iterator detunit_iter = theHits->begin();
+                                                   detunit_iter!= theHits->end(); detunit_iter++)
+          {
+            if(back)
+              break;
+            SiPixelRecHitCollection::DetSet range = *detunit_iter;
+            unsigned int id = range.detId();
+            const PixelGeomDetUnit* pixelDet =
+              dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet((id)));
+
+            PXBDetId pid(id); 
+            // Take all hits
+            if(pid.subdetId() == PixelSubdetector::PixelBarrel && pid.layer()==desLayer)
+              for(SiPixelRecHitCollection::DetSet::const_iterator recHit = range.begin();
+                                                          recHit!= range.end(); recHit++)
+              {
+                if(back)
+                  break;
+                GlobalPoint gpos = pixelDet->toGlobal(recHit->localPosition());
+
+                // eta and eloss
+                double R = TMath::Sqrt(gpos.x()*gpos.x()+gpos.y()*gpos.y());
+                float eta = -log(tan(atan2(R,(gpos.z()-rver_z))/2.));
+                float eloss = recHit->cluster()->charge();
+                int clustSizeY = recHit->cluster()->sizeY();
+
+//TEST -starts-
+//           	//check if it is passed
+//                bool HitPassed = false;
+//                for(std::vector<const SiPixelRecHit*>::const_iterator passedrecHit = passedClusters.begin(); passedrecHit != passedClusters.end(); ++passedrecHit ) {
+//                  if(compareRecHits((*passedrecHit),&(*recHit)))
+//                  { HitPassed = true; break; }
+//                }
+//                if(!HitPassed)
+//                  continue;
+//TEST -ends-
+                // associate 
+                simHits_ass = theHitAssociator.associateHit(*recHit);
+                // compare the simHits_ass and final_looper_hits
+                for(std::vector<PSimHit>::const_iterator assSimHit = simHits_ass.begin();
+                                                         assSimHit != simHits_ass.end(); assSimHit++)  {
+                    if(comparePSimHits(&(*lSimHit),&(*assSimHit))) {
+                      vector<float> input;
+//                      cerr<<" !!!! eloss: " << eloss << endl;
+                      knownHits.push_back(&(*recHit));
+                      input.push_back(eloss);
+                      input.push_back(eta);
+                      input.push_back(counter);
+                      input.push_back(vertices->size());
+                      input.push_back(clustSizeY);
+                      input.push_back(cluster_counter);
+
+                      // number of hits
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<3.0 && eta>2.5)
+                        looperHits_etaP6++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<2.5 && eta>2.0)
+                        looperHits_etaP5++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=2.0 && eta>1.5)
+                        looperHits_etaP4++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=1.5 && eta>1.0)
+                        looperHits_etaP3++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=1.0 && eta>0.5)
+                        looperHits_etaP2++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=0.5 && eta>0.0)
+                        looperHits_etaP1++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=0.0 && eta>-0.5)
+                        looperHits_etaN1++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=-0.5 && eta>-1.0)
+                        looperHits_etaN2++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=-1.0 && eta>-1.5)
+                        looperHits_etaN3++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=-1.5 && eta>-2.0)
+                        looperHits_etaN4++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=-2.0 && eta>-2.5)
+                        looperHits_etaN5++;
+                      if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta<=-2.5 && eta>-3.0)
+                        looperHits_etaN6++;
+
+                      // Filling
+                      if(desLayer==1)
+                        hJustLooper->Fill(&input[0]);
+                      if(desLayer==2)
+                        nd_hJustLooper->Fill(&input[0]);
+                      if(desLayer==3)
+                        rd_hJustLooper->Fill(&input[0]);
+
+                      back = true;
+                      break;
+                    }
+                }
+              }
+          } //end of recHits
+       }
+    } //end of trackingParticles
+
+  } // end of 1vtx condition
+
+  looper_result.push_back(looperHits_etaP6);
+  looper_result.push_back(looperHits_etaP5);
+  looper_result.push_back(looperHits_etaP4);
+  looper_result.push_back(looperHits_etaP3);
+  looper_result.push_back(looperHits_etaP2);
+  looper_result.push_back(looperHits_etaP1);
+  looper_result.push_back(looperHits_etaN1);
+  looper_result.push_back(looperHits_etaN2);
+  looper_result.push_back(looperHits_etaN3);
+  looper_result.push_back(looperHits_etaN4);
+  looper_result.push_back(looperHits_etaN5);
+  looper_result.push_back(looperHits_etaN6);
+  looper_result.push_back(cluster_counter);
+
+  if(desLayer==1)  
+    NLooper->Fill(&looper_result[0]);
+  if(desLayer==2)  
+    nd_NLooper->Fill(&looper_result[0]);
+  if(desLayer==3)  
+    rd_NLooper->Fill(&looper_result[0]);
+*/
+//LOOPER part ends here
+/*
+// contribution from decays -STARTS-
+  theHits = siPixelRecCollection.product();
+  TrackerHitAssociator theHitAssociator(ev);
+//  edm::Handle<TrackingParticleCollection> simCollection;
+//  ev.getByType(simCollection);
+
+  int decayCounter = 0;
+  int decayHits_etaP6 = 0;
+  int decayHits_etaP5 = 0;
+  int decayHits_etaP4 = 0;
+  int decayHits_etaP3 = 0;
+  int decayHits_etaP2 = 0;
+  int decayHits_etaP1 = 0;
+  int decayHits_etaN1 = 0;
+  int decayHits_etaN2 = 0;
+  int decayHits_etaN3 = 0;
+  int decayHits_etaN4 = 0;
+  int decayHits_etaN5 = 0;
+  int decayHits_etaN6 = 0;
+
+  // use all or the passed clusters
+  cerr<<" Number of passed clusters: " << passedClusters.size() << endl;
+  for(std::vector<const SiPixelRecHit*>::const_iterator recHit = passedClusters.begin(); recHit != passedClusters.end(); ++recHit ) {
+//  for(SiPixelRecHitCollection::id_iterator id = theHits->id_begin();
+//                                           id!= theHits->id_end(); id++)  {
+//     SiPixelRecHitCollection::range range = theHits->get((*id));
+//     const PixelGeomDetUnit* pixelDet =
+//           dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet((*id)));
+//     PXBDetId pid(*id);
+     const PixelGeomDetUnit* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit((**recHit).geographicalId()));
+     PXBDetId pdetId = PXBDetId((**recHit).geographicalId());
+     int layer=pdetId.layer();
+
+     // vertex check, it never fires
+     if(vertices->size()!=1)
+       break;
+
+     int alreadyFound = false;
+     if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && layer==desLayer) {
+//       for(SiPixelRecHitCollection::DataContainer::const_iterator recHit = range.first;
+//                                                   recHit!= range.second; recHit++)  {
+//          cerr<< " [ChargedMultiplicityAnalyzerNoSimInfo_new]: new recHit" << endl;;
+//          GlobalPoint globalPosition = pixelDet->toGlobal((recHit)->localPosition());
+          GlobalPoint globalPosition = pixelDet->toGlobal((**recHit).localPosition());
+          double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+          double eta_corr = -log(tan(atan2(R,(globalPosition.z()-rver_z))/2.));
+          // get assosiated sim tracks
+          vector<PSimHit> simHits_ass = theHitAssociator.associateHit(**recHit);
+          for(std::vector<PSimHit>::const_iterator assSimHit = simHits_ass.begin();
+                                                   assSimHit != simHits_ass.end(); assSimHit++)  {
+             if(alreadyFound)
+               break;
+             if(assSimHit->processType()==4) {
+               // filling ntuple
+               knownHits.push_back((*recHit));
+
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<3.0 && eta_corr>2.5)
+                 decayHits_etaP6++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<2.5 && eta_corr>2.0)
+                 decayHits_etaP5++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=2.0 && eta_corr>1.5)
+                 decayHits_etaP4++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=1.5 && eta_corr>1.0)  
+                 decayHits_etaP3++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=1.0 && eta_corr>0.5)
+                 decayHits_etaP2++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=0.5 && eta_corr>0.0)  
+                 decayHits_etaP1++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=0.0 && eta_corr>-0.5)
+                 decayHits_etaN1++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-0.5 && eta_corr>-1.0)
+                 decayHits_etaN2++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-1.0 && eta_corr>-1.5)
+                 decayHits_etaN3++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-1.5 && eta_corr>-2.0)
+                 decayHits_etaN4++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-2.0 && eta_corr>-2.5)
+                 decayHits_etaN5++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-2.5 && eta_corr>-3.0)
+                 decayHits_etaN6++;
+
+               //check, not needed
+//               cerr<< " Found a RecHit coming from a decay" << endl;
+               int parentID = 0;
+               // Found the particle causing the hit
+               for(TrackingParticleCollection::size_type i=0;
+                   i < simCollection.product()->size(); ++i) {
+                  if(alreadyFound)
+                    break;
+                  const TrackingParticleRef simTrack(simCollection, i);
+                  for(std::vector<PSimHit>::const_iterator
+                      simHit = simTrack->pSimHit_begin();
+                      simHit!= simTrack->pSimHit_end(); simHit++) {
+                      if(simHit->pabs() == assSimHit->pabs()) {
+//                        cerr<<" The particle leaving the decay hit: " << simTrack->pdgId() << endl;
+                        if(simTrack->parentVertex()->nSourceTracks() != 0) {
+//                          cerr<<" Mother of that particle: "<< (*(simTrack->parentVertex()->sourceTracks_begin()))->pdgId() << endl;
+                          parentID = (*(simTrack->parentVertex()->sourceTracks_begin()))->pdgId();
+                        }
+                        if(simTrack->parentVertex()->nSourceTracks() == 0)  {
+//                          cerr<<" The particle doesn't have a mother" << endl;
+                          parentID = -1;
+                        }
+                        alreadyFound = true;
+                        vector<float> result_decay;
+                        result_decay.push_back(parentID);
+                        result_decay.push_back(simTrack->pdgId());
+                        NDecayInfo->Fill(&result_decay[0]);
+                        break;
+                      }
+                  }     
+               }
+             }
+          }
+//       }
+     }
+  }
+
+  int num_weaks = 0;
+  for(TrackingParticleCollection::size_type i=0;
+      i < simCollection.product()->size(); ++i) {
+     const TrackingParticleRef simTrack(simCollection, i);
+
+     int parentID = 0;
+     if(simTrack->parentVertex()->nSourceTracks() != 0)
+       parentID = (*(simTrack->parentVertex()->sourceTracks_begin()))->pdgId();
+     if(parentID==310 || parentID==3122)
+     for(std::vector<PSimHit>::const_iterator
+         simHit = simTrack->pSimHit_begin();
+         simHit!= simTrack->pSimHit_end(); simHit++) {
+        const PixelGeomDetUnit* Bpgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit(simHit->detUnitId()));
+        if(Bpgdu==0)
+          continue;
+        PXBDetId BpdetId = PXBDetId(simHit->detUnitId());
+        int Blayer=BpdetId.layer();
+        if(Blayer==desLayer && Bpgdu->subDetector() == GeomDetEnumerators::PixelBarrel) {
+          num_weaks++;
+          break;
+        }
+     }
+  }
+  
+  cerr<< " (number of decay hits: " << decayHits_etaP5+decayHits_etaP4+decayHits_etaP3+decayHits_etaP2+decayHits_etaP1+decayHits_etaN1+decayHits_etaN2+decayHits_etaN3+decayHits_etaN4+decayHits_etaN5 << ")" << endl;
+  vector<float> result_decay;
+  result_decay.push_back(decayCounter);
+  result_decay.push_back(num_weaks);
+  result_decay.push_back(decayHits_etaP6);
+  result_decay.push_back(decayHits_etaP5);
+  result_decay.push_back(decayHits_etaP4);
+  result_decay.push_back(decayHits_etaP3);
+  result_decay.push_back(decayHits_etaP2);
+  result_decay.push_back(decayHits_etaP1);
+  result_decay.push_back(decayHits_etaN1);
+  result_decay.push_back(decayHits_etaN2);
+  result_decay.push_back(decayHits_etaN3);
+  result_decay.push_back(decayHits_etaN4);
+  result_decay.push_back(decayHits_etaN5);
+  result_decay.push_back(decayHits_etaN6);
+  result_decay.push_back(cluster_counter);
+
+  if(desLayer==1)
+    NDecay->Fill(&result_decay[0]);
+  if(desLayer==2)
+    nd_NDecay->Fill(&result_decay[0]);
+  if(desLayer==3)
+    rd_NDecay->Fill(&result_decay[0]);
+// contribution from decays -FINISHED-
+
+// contribution of different interactions (non-primary, non-decay products)
+// -STARTS-
+//  cerr<< " Intarection part starts." << endl;
+  int interHits_etaP6 = 0;
+  int interHits_etaP5 = 0;
+  int interHits_etaP4 = 0;
+  int interHits_etaP3 = 0;
+  int interHits_etaP2 = 0;
+  int interHits_etaP1 = 0;
+  int interHits_etaN1 = 0;
+  int interHits_etaN2 = 0;
+  int interHits_etaN3 = 0;
+  int interHits_etaN4 = 0;
+  int interHits_etaN5 = 0;
+  int interHits_etaN6 = 0;
+  // use all or the passed cluster
+  // currently: all
+  for(std::vector<const SiPixelRecHit*>::const_iterator recHit = passedClusters.begin(); recHit != passedClusters.end(); ++recHit ) {
+//  for(SiPixelRecHitCollection::id_iterator id = theHits->id_begin();
+//                                           id!= theHits->id_end(); id++)  {
+//     SiPixelRecHitCollection::range range = theHits->get((*id));
+//     const PixelGeomDetUnit* pixelDet =
+//           dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet((*id)));
+//     PXBDetId pid(*id);
+
+     const PixelGeomDetUnit* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit((**recHit).geographicalId()));
+     PXBDetId pdetId = PXBDetId((**recHit).geographicalId());
+     int layer=pdetId.layer();
+
+     // vertex check, it never fires
+     if(vertices->size()!=1)
+       break;
+
+     int alreadyFound = false;
+     if(pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel && layer==desLayer) {
+//       for(SiPixelRecHitCollection::DataContainer::const_iterator recHit = range.first;
+//                                                   recHit!= range.second; recHit++)  {
+          bool fromInt = true;
+//          GlobalPoint globalPosition = pixelDet->toGlobal((recHit)->localPosition());
+          GlobalPoint globalPosition = pixelDet->toGlobal((**recHit).localPosition());
+          double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+          double eta_corr = -log(tan(atan2(R,(globalPosition.z()-rver_z))/2.));
+          // get assosiated sim tracks
+          vector<PSimHit> simHits_ass = theHitAssociator.associateHit(**recHit);
+          // check the hits
+          for(std::vector<PSimHit>::const_iterator assSimHit = simHits_ass.begin();
+                                                   assSimHit != simHits_ass.end(); assSimHit++)  {
+             if(assSimHit->processType() == 4 || assSimHit->processType() == 2)
+               fromInt = false;
+          }
+          // move to the next recHit
+          if(!fromInt)
+            continue;
+          for(std::vector<PSimHit>::const_iterator assSimHit = simHits_ass.begin();
+                                                   assSimHit != simHits_ass.end(); assSimHit++)  {
+             if(alreadyFound)
+               break;
+             if(assSimHit->processType() != 4 && assSimHit->processType() != 2) {
+              // filling ntuple
+               knownHits.push_back(*recHit);
+
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<3.0 && eta_corr>2.5)
+                 interHits_etaP6++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<2.5 && eta_corr>2.0)
+                 interHits_etaP5++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=2.0 && eta_corr>1.5)
+                 interHits_etaP4++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=1.5 && eta_corr>1.0)
+                 interHits_etaP3++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=1.0 && eta_corr>0.5)
+                 interHits_etaP2++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=0.5 && eta_corr>0.0)
+                 interHits_etaP1++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=0.0 && eta_corr>-0.5)
+                 interHits_etaN1++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-0.5 && eta_corr>-1.0)
+                 interHits_etaN2++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-1.0 && eta_corr>-1.5)
+                 interHits_etaN3++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-1.5 && eta_corr>-2.0)
+                 interHits_etaN4++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-2.0 && eta_corr>-2.5)
+                 interHits_etaN5++;
+               if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (layer == desLayer) && eta_corr<=-2.5 && eta_corr>-3.0)
+                 interHits_etaN6++;
+
+               alreadyFound = true;                
+             }
+          }
+//       }
+     }
+  }    
+
+  cerr << " (number of hits from interaction: " << interHits_etaP5+interHits_etaP4+interHits_etaP3+interHits_etaP2+interHits_etaP1+interHits_etaN1+interHits_etaN2+interHits_etaN3+interHits_etaN4+interHits_etaN5 << ")" << endl; 
+  vector<float> result_inter;
+  result_inter.push_back(interHits_etaP6);
+  result_inter.push_back(interHits_etaP5);
+  result_inter.push_back(interHits_etaP4);
+  result_inter.push_back(interHits_etaP3);
+  result_inter.push_back(interHits_etaP2);
+  result_inter.push_back(interHits_etaP1);
+  result_inter.push_back(interHits_etaN1);
+  result_inter.push_back(interHits_etaN2);
+  result_inter.push_back(interHits_etaN3);
+  result_inter.push_back(interHits_etaN4);
+  result_inter.push_back(interHits_etaN5);
+  result_inter.push_back(interHits_etaN6);
+  result_inter.push_back(cluster_counter);
+
+  if(desLayer==1)
+    NInter->Fill(&result_inter[0]);
+  if(desLayer==2)
+    nd_NInter->Fill(&result_inter[0]);
+  if(desLayer==3)
+    rd_NInter->Fill(&result_inter[0]);
+// -FINISHED-
+
+// primary non-loopers below the cut
+// -STARTS-
+//  cerr<< " Below part starts." << endl;
+  int belowHits_etaP6 = 0;
+  int belowHits_etaP5 = 0;
+  int belowHits_etaP4 = 0;
+  int belowHits_etaP3 = 0;
+  int belowHits_etaP2 = 0;
+  int belowHits_etaP1 = 0;
+  int belowHits_etaN1 = 0;
+  int belowHits_etaN2 = 0;
+  int belowHits_etaN3 = 0;
+  int belowHits_etaN4 = 0;
+  int belowHits_etaN5 = 0;
+  int belowHits_etaN6 = 0;
+  vector<float> result_below;
+  int addedHits = 0;
+  for(SiPixelRecHitCollection::const_iterator detunit_iter = theHits->begin();
+                                           detunit_iter!= theHits->end(); detunit_iter++)
+  {
+    SiPixelRecHitCollection::DetSet range = *detunit_iter;
+    unsigned int id = range.detId();
+    const PixelGeomDetUnit* pixelDet =
+      dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet((id)));
+
+    PXBDetId pid(id);
+
+    // Take all hits
+    if(pid.subdetId() == PixelSubdetector::PixelBarrel)
+    {
+      // Look at the first barrel only
+      if(pid.layer() == desLayer)
+      for(SiPixelRecHitCollection::DetSet::const_iterator recHit = range.begin();
+                             recHit!= range.end(); recHit++)
+      {
+        //check if it is passed
+        bool above = false;
+        for(std::vector<const SiPixelRecHit*>::const_iterator passedrecHit = passedClusters.begin(); passedrecHit != passedClusters.end(); ++passedrecHit ) {
+          if(compareRecHits((*passedrecHit),&(*recHit)))
+            { above = true; break; }
+        }
+        if(above)
+          continue;
+        //the real work starts
+        GlobalPoint globalPosition = pixelDet->toGlobal((*recHit).localPosition());
+        double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+        double eta_corr = -log(tan(atan2(R,(globalPosition.z()-rver_z))/2.));
+        float eloss = recHit->cluster()->charge();
+        int clustSizeY = recHit->cluster()->sizeY();
+        vector<PSimHit> simHits_ass = theHitAssociator.associateHit(*recHit);
+        //associated sim hits
+        bool usedRecHit = false;
+        for(std::vector<PSimHit>::const_iterator assSimHit = simHits_ass.begin();
+                                                 assSimHit != simHits_ass.end(); assSimHit++)  {
+           if(assSimHit->processType() != 2)
+             continue; 
+           for(TrackingParticleCollection::size_type i=0; i < simCollection.product()->size(); ++i) {
+             const TrackingParticleRef simTrack(simCollection, i);
+             for(std::vector<PSimHit>::const_iterator
+               simHit = simTrack->pSimHit_begin();
+               simHit!= simTrack->pSimHit_end(); simHit++) {
+               if(comparePSimHits(&(*simHit),&(*assSimHit))) {
+                 bool onLooper = false;
+                 for(vector<TrackingParticle>::const_iterator tLemma = loopers.begin(); tLemma != loopers.end(); tLemma++) {
+                   if(tLemma->pt() == simTrack->pt()) {
+                     onLooper = true;
+                   }
+                 }
+                 if(!onLooper) {
+
+                   // number of hits
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<3.0 && eta_corr>2.5)
+                     belowHits_etaP6++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<2.5 && eta_corr>2.0)
+                     belowHits_etaP5++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=2.0 && eta_corr>1.5)
+                     belowHits_etaP4++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=1.5 && eta_corr>1.0)
+                     belowHits_etaP3++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=1.0 && eta_corr>0.5)
+                     belowHits_etaP2++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=0.5 && eta_corr>0.0)
+                     belowHits_etaP1++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=0.0 && eta_corr>-0.5)
+                     belowHits_etaN1++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-0.5 && eta_corr>-1.0)
+                     belowHits_etaN2++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-1.0 && eta_corr>-1.5)
+                     belowHits_etaN3++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-1.5 && eta_corr>-2.0)
+                     belowHits_etaN4++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-2.0 && eta_corr>-2.5)
+                     belowHits_etaN5++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-2.5 && eta_corr>-3.0)
+                     belowHits_etaN6++;
+
+                   addedHits++;
+                   usedRecHit = true;
+                   break;
+                 }
+               }
+             }
+             if(usedRecHit)
+               break;
+           }          
+           if(usedRecHit)
+             break;
+        }
+      }
+    }
+  }
+  cerr<< " number of added hits: " << addedHits << endl;
+  result_below.push_back(belowHits_etaP6);
+  result_below.push_back(belowHits_etaP5);
+  result_below.push_back(belowHits_etaP4);
+  result_below.push_back(belowHits_etaP3);
+  result_below.push_back(belowHits_etaP2);
+  result_below.push_back(belowHits_etaP1);
+  result_below.push_back(belowHits_etaN1);
+  result_below.push_back(belowHits_etaN2);
+  result_below.push_back(belowHits_etaN3);
+  result_below.push_back(belowHits_etaN4);
+  result_below.push_back(belowHits_etaN5);
+  result_below.push_back(belowHits_etaN6);
+  result_below.push_back(cluster_counter);
+
+  if(desLayer==1)
+    NBelow->Fill(&result_below[0]);
+  if(desLayer==2)
+    nd_NBelow->Fill(&result_below[0]);
+  if(desLayer==3)
+    rd_NBelow->Fill(&result_below[0]);
+// -FINISHED-
+
+// geo part -STARTS- here
+// use the passed clusters if we add only non-duplicated hits before
+  vector<float> result_geo;
+  int geoadded = 0;
+  int geoHits_etaP6 = 0;
+  int geoHits_etaP5 = 0;
+  int geoHits_etaP4 = 0;
+  int geoHits_etaP3 = 0;
+  int geoHits_etaP2 = 0;
+  int geoHits_etaP1 = 0;
+  int geoHits_etaN1 = 0;
+  int geoHits_etaN2 = 0;
+  int geoHits_etaN3 = 0;
+  int geoHits_etaN4 = 0;
+  int geoHits_etaN5 = 0;
+  int geoHits_etaN6 = 0;
+  for(vector<TrackingParticle>::const_iterator tPR = geoPrims.begin(); tPR != geoPrims.end(); tPR++) {
+    for(std::vector<PSimHit>::const_iterator
+        simHit = tPR->pSimHit_begin();
+        simHit!= tPR->pSimHit_end(); simHit++)  {
+       bool nextOne = false;
+       if(simHit->processType()==2)
+       for(SiPixelRecHitCollection::const_iterator detunit_iter = theHits->begin();
+                                                detunit_iter!= theHits->end(); detunit_iter++)
+       {
+         if(nextOne)
+           break;
+         SiPixelRecHitCollection::DetSet range = *detunit_iter;
+         unsigned int id = range.detId();
+         const PixelGeomDetUnit* pixelDet =
+           dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet((id)));
+
+         PXBDetId pid(id);
+
+         // Take all hits
+         if(pid.subdetId() == PixelSubdetector::PixelBarrel)
+         {
+          // Look at the first barrel only
+           if(pid.layer() == desLayer)
+           for(SiPixelRecHitCollection::DetSet::const_iterator recHit = range.begin();
+                                  recHit!= range.end(); recHit++)
+           {
+              // use only the passed clusters
+//              bool passedHit = false;
+//              for(std::vector<const SiPixelRecHit*>::const_iterator passedrecHit = passedClusters.begin(); 
+//                                      passedrecHit != passedClusters.end(); ++passedrecHit ) {
+//                if(compareRecHits((*passedrecHit),&(*recHit)))
+//                  passedHit = true;
+//              }
+//              if(!passedHit)
+//                continue;
+              if(nextOne)
+                break;
+              GlobalPoint globalPosition = pixelDet->toGlobal((*recHit).localPosition());
+              double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+              double eta_corr = -log(tan(atan2(R,(globalPosition.z()-rver_z))/2.));
+              float eloss = recHit->cluster()->charge();
+              int clustSizeY = recHit->cluster()->sizeY();
+              vector<PSimHit> simHits_ass = theHitAssociator.associateHit(*recHit);
+              for(std::vector<PSimHit>::const_iterator assSimHit = simHits_ass.begin();
+                                                       assSimHit != simHits_ass.end(); assSimHit++)  {
+                if(comparePSimHits(&(*simHit),&(*assSimHit))) {
+                  geoadded++;
+                  knownHits.push_back(&(*recHit));
+
+                   // number of hits
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<3.0 && eta_corr>2.5)
+                     geoHits_etaP6++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<2.5 && eta_corr>2.0)
+                     geoHits_etaP5++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=2.0 && eta_corr>1.5)
+                     geoHits_etaP4++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=1.5 && eta_corr>1.0)
+                     geoHits_etaP3++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=1.0 && eta_corr>0.5)
+                     geoHits_etaP2++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=0.5 && eta_corr>0.0)
+                     geoHits_etaP1++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=0.0 && eta_corr>-0.5)
+                     geoHits_etaN1++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-0.5 && eta_corr>-1.0)
+                     geoHits_etaN2++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-1.0 && eta_corr>-1.5)
+                     geoHits_etaN3++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-1.5 && eta_corr>-2.0)
+                     geoHits_etaN4++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-2.0 && eta_corr>-2.5)
+                     geoHits_etaN5++;
+                   if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-2.5 && eta_corr>-3.0)
+                     geoHits_etaN6++;
+
+                  nextOne = true;
+                  break;  // if one hit is found we should aim for the next simTrack (by definition on geomPrims)
+                } 
+             }
+           }
+         }
+       }
+       if(nextOne)
+         break;
+    }
+  }
+  cerr<< " (number of geo hits removed: " << geoadded << ")" << endl;
+  result_geo.push_back(geoHits_etaP6);
+  result_geo.push_back(geoHits_etaP5);
+  result_geo.push_back(geoHits_etaP4);
+  result_geo.push_back(geoHits_etaP3);
+  result_geo.push_back(geoHits_etaP2);
+  result_geo.push_back(geoHits_etaP1);
+  result_geo.push_back(geoHits_etaN1);
+  result_geo.push_back(geoHits_etaN2);
+  result_geo.push_back(geoHits_etaN3);
+  result_geo.push_back(geoHits_etaN4);
+  result_geo.push_back(geoHits_etaN5);
+  result_geo.push_back(geoHits_etaN6);
+  result_geo.push_back(cluster_counter);
+
+  if(desLayer==1)
+    NGeo->Fill(&result_geo[0]);
+  if(desLayer==2)
+    nd_NGeo->Fill(&result_geo[0]);
+  if(desLayer==3)
+    rd_NGeo->Fill(&result_geo[0]);
+// -FINISHED-
+
+// -not properly associated recHits- -STARTS-
+  int strangeHits_etaP6 = 0;
+  int strangeHits_etaP5 = 0;
+  int strangeHits_etaP4 = 0;
+  int strangeHits_etaP3 = 0;
+  int strangeHits_etaP2 = 0;
+  int strangeHits_etaP1 = 0;
+  int strangeHits_etaN1 = 0;
+  int strangeHits_etaN2 = 0;
+  int strangeHits_etaN3 = 0;
+  int strangeHits_etaN4 = 0;
+  int strangeHits_etaN5 = 0;
+  int strangeHits_etaN6 = 0;
+  
+  std::vector<const SiPixelRecHit*> strangeRecHits;
+  for(SiPixelRecHitCollection::const_iterator detunit_iter = theHits->begin();
+                                           detunit_iter!= theHits->end(); detunit_iter++)
+  {
+     // vertex check, it never fires
+     if(vertices->size()!=1)
+       break;
+
+     SiPixelRecHitCollection::DetSet range = *detunit_iter;
+     unsigned int id = range.detId();
+     const PixelGeomDetUnit* pixelDet =  dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet((id)));
+
+     PXBDetId pid(id);
+     // Take all hits
+     if(pid.subdetId() == PixelSubdetector::PixelBarrel && pid.layer()==desLayer) {
+       for(SiPixelRecHitCollection::DetSet::const_iterator recHit = range.begin();
+                                                   recHit!= range.end(); recHit++)
+       {
+          // only use the passed clusters
+          bool passedHit = false;
+          for(std::vector<const SiPixelRecHit*>::const_iterator passedrecHit = passedClusters.begin(); 
+                                  passedrecHit != passedClusters.end(); ++passedrecHit ) {
+            if(compareRecHits((*passedrecHit),&(*recHit)))
+              passedHit = true;
+          }
+          if(!passedHit)
+            continue;
+
+          GlobalPoint gpos = pixelDet->toGlobal(recHit->localPosition());
+          double R = TMath::Sqrt(gpos.x()*gpos.x()+gpos.y()*gpos.y());
+          double eta_corr = -log(tan(atan2(R,(gpos.z()-rver_z))/2.));
+          float eloss = recHit->cluster()->charge();
+          int clustSizeY = recHit->cluster()->sizeY();
+          bool Found = false;
+          // associate 
+          vector<PSimHit> simHits_ass = theHitAssociator.associateHit(*recHit);
+          for(std::vector<PSimHit>::const_iterator assSimHit = simHits_ass.begin();
+                                                   assSimHit != simHits_ass.end(); assSimHit++)  {
+             const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDetUnit(assSimHit->detUnitId()));
+             PXBDetId pdetId = PXBDetId(assSimHit->detUnitId());
+             int layer=pdetId.layer();
+             GlobalPoint globalPosition = pgdu->toGlobal(assSimHit->localPosition());
+             if(assSimHit->processType()==2 && (globalPosition-gpos).mag()>0.1) {
+               // check wether we removed it already
+               for(std::vector<const SiPixelRecHit*>::const_iterator knownHit = knownHits.begin();
+                                                                     knownHit != knownHits.end(); ++knownHit ) {
+                if(compareRecHits((*knownHit),&(*recHit)))
+                  Found = true;
+               }
+               if(!Found) {
+                 strangeRecHits.push_back(&(*recHit));
+
+                 // number of hits
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<3.0 && eta_corr>2.5)
+                   strangeHits_etaP6++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<2.5 && eta_corr>2.0)
+                   strangeHits_etaP5++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=2.0 && eta_corr>1.5)
+                   strangeHits_etaP4++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=1.5 && eta_corr>1.0)
+                   strangeHits_etaP3++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=1.0 && eta_corr>0.5)
+                   strangeHits_etaP2++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=0.5 && eta_corr>0.0)
+                   strangeHits_etaP1++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=0.0 && eta_corr>-0.5)
+                   strangeHits_etaN1++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-0.5 && eta_corr>-1.0)
+                   strangeHits_etaN2++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-1.0 && eta_corr>-1.5)
+                   strangeHits_etaN3++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-1.5 && eta_corr>-2.0)
+                   strangeHits_etaN4++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-2.0 && eta_corr>-2.5)
+                   strangeHits_etaN5++;
+                 if((pixelDet->subDetector() == GeomDetEnumerators::PixelBarrel) && (pid.layer() == desLayer) && eta_corr<=-2.5 && eta_corr>-3.0)
+                   strangeHits_etaN6++;
+
+                 break; //go to the next recHit
+               }
+             }
+          }
+       }
+     }
+  }
+  cerr<< " number of strangeRecHits: " << strangeRecHits.size() << endl;
+  vector<float> result_strange;
+  result_strange.push_back(strangeHits_etaP6);
+  result_strange.push_back(strangeHits_etaP5);
+  result_strange.push_back(strangeHits_etaP4);
+  result_strange.push_back(strangeHits_etaP3);
+  result_strange.push_back(strangeHits_etaP2);
+  result_strange.push_back(strangeHits_etaP1);
+  result_strange.push_back(strangeHits_etaN1);
+  result_strange.push_back(strangeHits_etaN2);
+  result_strange.push_back(strangeHits_etaN3);
+  result_strange.push_back(strangeHits_etaN4);
+  result_strange.push_back(strangeHits_etaN5);
+  result_strange.push_back(strangeHits_etaN6);
+  result_strange.push_back(cluster_counter);
+
+  if(desLayer==1)
+    NStrange->Fill(&result_strange[0]);
+  if(desLayer==2)
+    nd_NStrange->Fill(&result_strange[0]);
+  if(desLayer==3)
+    rd_NStrange->Fill(&result_strange[0]);
+// -FINISHED-
+
+// check knownhits -STARTS-
+// use passedCluster!! and add prims below the cut!!
+// known hits = loopers + decays + interactions + geo
+*/
+/*
+  int numPrimaries = T_truth_etaP5+T_truth_etaP4+T_truth_etaP3+T_truth_etaP2+T_truth_etaP1+T_truth_etaN1+T_truth_etaN2+T_truth_etaN3+T_truth_etaN4+T_truth_etaN5;
+  cerr<< " number of primary particles: " << numPrimaries << endl;
+  cerr<< " number of known cluster (we remove these): " << knownHits.size() << endl;
+  for(SiPixelRecHitCollection::id_iterator id = theHits->id_begin();
+                                           id!= theHits->id_end(); id++)
+  {
+    SiPixelRecHitCollection::range range = theHits->get((*id));
+    const PixelGeomDetUnit* pixelDet =
+      dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet((*id)));
+
+    // Take all hits
+    if((*id).subdetId() == PixelSubdetector::PixelBarrel)
+    {
+      PXBDetId pid(*id);
+
+      // Look at the first barrel only
+      if(pid.layer() == desLayer)
+      for(SiPixelRecHitCollection::DataContainer::const_iterator recHit = range.first;
+                             recHit!= range.second; recHit++)
+      {
+         // use passed clusters
+         bool passedHit = false;
+         for(std::vector<const SiPixelRecHit*>::const_iterator passedrecHit = passedClusters.begin();
+                                  passedrecHit != passedClusters.end(); ++passedrecHit ) {
+            if(compareRecHits((*passedrecHit),&(*recHit)))
+              passedHit = true;
+         }
+         if(!passedHit)
+           continue;
+
+         bool Found = false;
+         for(std::vector<const SiPixelRecHit*>::const_iterator knownHit = knownHits.begin();
+                                                   knownHit != knownHits.end(); ++knownHit ) {
+            if(compareRecHits((*knownHit),&(*recHit)))
+              Found=true;
+         }
+         if(!Found) {
+           //find the sim track
+           bool nextRecHit = false;
+           vector<PSimHit> simHits_ass = theHitAssociator.associateHit(*recHit);
+           for(std::vector<PSimHit>::const_iterator assSimHit = simHits_ass.begin();
+                                                    assSimHit != simHits_ass.end(); assSimHit++)  {
+             if(assSimHit->processType()==2)  
+             for(TrackingParticleCollection::size_type i=0; i < simCollection.product()->size(); ++i) {
+               const TrackingParticleRef simTrack(simCollection, i);
+               for(std::vector<PSimHit>::const_iterator
+                    simHit = simTrack->pSimHit_begin();
+                    simHit!= simTrack->pSimHit_end(); simHit++) {
+                 if(comparePSimHits(&(*simHit),&(*assSimHit))) {
+                    GlobalPoint globalPosition = pixelDet->toGlobal((*recHit).localPosition());
+                    double R = TMath::Sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y());
+                    cerr<<" Found a _good_ primary hit" << endl;
+                    cerr<<"  simTrack infos: pt:  " << simTrack->pt() << ", id: "<< simTrack->pdgId() << endl;
+                    cerr<<"  production time:     " << simTrack->parentVertex()->position().T() << endl;
+                    cerr<<"  recHit trans. dist.: " << R << endl;
+                    cerr<<"  recHit z pos:        " << globalPosition.z() << endl;
+                    cerr<<"  time of flight:      " << assSimHit->timeOfFlight() << endl;
+                    nextRecHit = true;
+                    break;
+                 }
+               }     
+               if(nextRecHit)
+                 break;
+             }
+             if(nextRecHit)
+               break;
+           }
+         }
+      } 
+    }
+  }
+// -FINISHED-
+*/
+}
+
+/*****************************************************************************/
+bool ChargedMultiplicityAnalyzerNoSimInfo_new::isAtEdge
+  (const RectangularPixelTopology* topology, const SiPixelRecHit & recHit)
+{
+  return topology->isItEdgePixelInX(recHit.cluster()->minPixelCol()) ||
+         topology->isItEdgePixelInX(recHit.cluster()->maxPixelCol()) ||
+         topology->isItEdgePixelInY(recHit.cluster()->minPixelRow()) ||
+         topology->isItEdgePixelInY(recHit.cluster()->maxPixelRow());
+}
+
+/*****************************************************************************/
+/*
+vector<PSimHit> ChargedMultiplicityAnalyzerNoSimInfo_new::orderPSimHits(vector<PSimHit> simHits)
+{
+  vector<PSimHit> ordered;
+  PSimHit * earliest = 0;
+  vector<PSimHit>::iterator lemma;
+  float pmax = 0.;
+  int i = 0;
+  int boundary = simHits.size();
+  for(i=0; i < boundary; i++) {
+     for(vector<PSimHit>::iterator simHit = simHits.begin();
+         simHit!= simHits.end(); simHit++) {
+        if(simHit->pabs() > pmax)
+          { earliest = &(*simHit); pmax=simHit->pabs(); lemma = simHit; }
+     }
+     pmax = 0.;
+     simHits.erase(lemma);
+     ordered.push_back(*earliest);
+  }
+  return ordered;
+}
+*/
+/*****************************************************************************/
+void ChargedMultiplicityAnalyzerNoSimInfo_new::analyze
+  (const edm::Event& ev, const edm::EventSetup& es)
+{
+  // Get siPixelRecHits
+  edm::Handle<SiPixelRecHitCollection> siPixelRecCollection;
+  ev.getByLabel(src_,siPixelRecCollection);
+
+  edm::Handle<reco::VertexCollection> vertexCollection;
+  ev.getByLabel("clusterVertices",vertexCollection);
+  const reco::VertexCollection * vertices = vertexCollection.product();
+
+  edm::ESHandle<TrackerGeometry> tracker;
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  theTracker = tracker.product();
+
+//  std::cerr<<"Number of vertices: "<< vertices->size()<<std::endl;
+//  std::cerr<<"Number of clusters: "<< siPixelRecCollection.product()->size()<<std::endl;
+
+  //MC
+//  Handle<HepMCProduct> evt;
+//  ev.getByType(evt);
+//  HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+
+  // Analyze
+//  checkVertices(vertices, TVCollection, recCollection, myGenEvent);
+//  FirstSimOnFirst(siPixelRecCollection, vertices, ev, es);
+  onFirst(siPixelRecCollection, vertices, ev, es);
+  multiplicityProperties(ev, es, siPixelRecCollection, vertices, 1);
+  multiplicityProperties(ev, es, siPixelRecCollection, vertices, 2);
+  multiplicityProperties(ev, es, siPixelRecCollection, vertices, 3);
+//  checkEta(ev, es, towers, siPixelRecCollection, vertices, myGenEvent);
+//  checkSimTracks(ev, es, siPixelRecCollection);
+
+  clusterVertices(ev, es, vertices, siPixelRecCollection);
+}

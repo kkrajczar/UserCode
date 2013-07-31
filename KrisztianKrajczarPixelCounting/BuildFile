@@ -1,0 +1,60 @@
+# $Id: BuildFile,v 1.7 2010/10/29 15:31:01 krajczar Exp $
+
+<use name=boost>
+<use name=root>
+<use name=clhep>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/Utilities>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=TrackingTools/PatternTools>
+<use name=RecoPixelVertexing/PixelTriplets>
+<use name=RecoPixelVertexing/PixelTrackFitting>
+<use name=SimDataFormats/GeneratorProducts>
+<use name=RecoVertex/VertexTools>
+<use name=RecoVertex/KalmanVertexFit>
+<use name=RecoTracker/TkSeedGenerator>
+<use name=TrackingTools/TrajectoryCleaning>
+<use name=RecoTracker/CkfPattern>
+<use name=TrackingTools/TrajectoryFiltering>
+<use name=TrackingTools/Records>
+<use name=RecoLocalTracker/Records>
+#<use name=MagneticField/Records>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=L1Trigger/GlobalTriggerAnalyzer>
+<use name=Geometry/CaloGeometry>
+<use name=DataFormats/HeavyIonEvent>
+<use name=CondFormats/HIObjects>
+<use name=CondFormats/DataRecord>
+<export>
+ <lib name=UserCodeKrisztianKrajczarPixelCounting>
+ <use name=boost>
+ <use name=root>
+ <use name=clhep>
+
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/PluginManager>
+ <use name=FWCore/Utilities>
+
+ <use name=Geometry/Records>
+ <use name=Geometry/TrackerGeometryBuilder>
+ <use name=TrackingTools/PatternTools>
+ <use name=RecoPixelVertexing/PixelTriplets>
+ <use name=RecoPixelVertexing/PixelTrackFitting>
+ <use name=SimDataFormats/GeneratorProducts>
+ <use name=RecoVertex/VertexTools>
+ <use name=RecoVertex/KalmanVertexFit>
+ <use name=RecoTracker/TkSeedGenerator>
+ <use name=TrackingTools/TrajectoryCleaning>
+ <use name=RecoTracker/CkfPattern>
+ <use name=TrackingTools/TrajectoryFiltering>
+ <use name=TrackingTools/Records>
+ <use name=RecoLocalTracker/Records>
+# <use name=MagneticField/Records>
+ <use name=DataFormats/HeavyIonEvent>
+ <use name=CondFormats/HIObjects>
+ <use name=CondFormats/DataRecord>
+</export>

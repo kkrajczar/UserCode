@@ -1,0 +1,6 @@
+# $Id: BuildFile,v 1.2 2009/11/27 13:27:32 loizides Exp $
+
+<use name=UserCode/KrisztianKrajczarPixelCounting>
+<library file="*.cc" name=UserCodeKrisztianKrajczarPixelCountingPlugins>
+  <flags EDM_PLUGIN=1>
+</library>

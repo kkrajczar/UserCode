@@ -1,0 +1,7 @@
+#hibat
+
+cmsenv
+source /osg/grid/setup.sh
+grid-proxy-init
+source /osg/app/crab/crab.sh
+source /osg/app/glite/etc/profile.d/grid_env.sh

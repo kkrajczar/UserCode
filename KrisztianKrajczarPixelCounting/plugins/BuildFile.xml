@@ -1,0 +1,4 @@
+<use   name="UserCode/KrisztianKrajczarPixelCounting"/>
+<library   file="*.cc" name="UserCodeKrisztianKrajczarPixelCountingPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
